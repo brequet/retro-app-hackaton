@@ -180,6 +180,15 @@ export default function HomeScreen() {
 
         <View style={{ height: 24 }} />
       </ScrollView>
+
+      {/* Floating Action Button - Create Activity */}
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => router.push('/activity/create')}
+        activeOpacity={0.85}
+      >
+        <Ionicons name="add" size={28} color={Colors.white} />
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }
@@ -281,5 +290,18 @@ const styles = StyleSheet.create({
   },
   compactCardWrapper: {
     marginRight: Spacing.sm,
+  },
+  fab: {
+    position: 'absolute',
+    bottom: 24,
+    right: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: Colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...Shadows.lg,
+    zIndex: 10,
   },
 });

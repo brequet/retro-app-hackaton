@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,8 @@ import {
   ScrollView,
   TouchableOpacity,
   Animated,
+  Alert,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
@@ -13,8 +15,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { Colors, FontSize, Spacing, BorderRadius, Shadows } from '../../src/constants/theme';
 import { Skeleton } from '../../src/components/Skeleton';
-import { fetchActivity, markAsViewed, addFavorite, removeFavorite } from '../../src/api/queries';
+import { fetchActivity, markAsViewed, addFavorite, removeFavorite, deleteActivity } from '../../src/api/queries';
 import { useFavoritesStore } from '../../src/stores/favoritesStore';
+import { useAuthStore } from '../../src/stores/authStore';
+import { useToastStore } from '../../src/stores/toastStore';
 
 function DetailSkeleton() {
   return (
@@ -43,13 +47,18 @@ function DetailSkeleton() {
 export default function ActivityDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const isFavorite = useFavoritesStore((s) => s.favoriteIds.has(id));
+  const user = useAuthStore((s) => s.user);
   const heartScale = useRef(new Animated.Value(1)).current;
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const { data: activity, isLoading } = useQuery({
     queryKey: ['activity', id],
     queryFn: () => fetchActivity(id),
     enabled: !!id,
   });
+
+  const isCreator = !!(activity?.creator_id && user?.id && activity.creator_id === user.id);
+  const isDeleted = !!activity?.deleted_at;
 
   useEffect(() => {
     if (id) {
@@ -81,6 +90,38 @@ export default function ActivityDetailScreen() {
     } catch {}
   };
 
+  const handleEdit = () => {
+    router.push(`/activity/create?editId=${id}`);
+  };
+
+  const handleDelete = () => {
+    const doDelete = async () => {
+      setIsDeleting(true);
+      try {
+        await deleteActivity(id);
+        useToastStore.getState().show('Activite supprimee', 'success');
+        router.back();
+      } catch {
+        useToastStore.getState().show('Impossible de supprimer', 'error');
+        setIsDeleting(false);
+      }
+    };
+
+    if (Platform.OS === 'web') {
+      const confirmed = window.confirm('Supprimer cette activite ? Cette action est irreversible.');
+      if (confirmed) doDelete();
+    } else {
+      Alert.alert(
+        'Supprimer',
+        'Supprimer cette activite ? Cette action est irreversible.',
+        [
+          { text: 'Annuler', style: 'cancel' },
+          { text: 'Supprimer', style: 'destructive', onPress: doDelete },
+        ],
+      );
+    }
+  };
+
   if (isLoading || !activity) {
     return (
       <SafeAreaView style={styles.safe}>
@@ -105,15 +146,31 @@ export default function ActivityDetailScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
           <Ionicons name="arrow-back" size={24} color={Colors.text} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={handleToggleFavorite} style={styles.headerBtn}>
-          <Animated.View style={{ transform: [{ scale: heartScale }] }}>
-            <Ionicons
-              name={isFavorite ? 'heart' : 'heart-outline'}
-              size={24}
-              color={isFavorite ? '#e74c3c' : Colors.text}
-            />
-          </Animated.View>
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+          {isCreator && !isDeleted && (
+            <>
+              <TouchableOpacity onPress={handleEdit} style={styles.headerBtn}>
+                <Ionicons name="pencil" size={20} color={Colors.primary} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleDelete}
+                style={styles.headerBtn}
+                disabled={isDeleting}
+              >
+                <Ionicons name="trash" size={20} color="#e74c3c" />
+              </TouchableOpacity>
+            </>
+          )}
+          <TouchableOpacity onPress={handleToggleFavorite} style={styles.headerBtn}>
+            <Animated.View style={{ transform: [{ scale: heartScale }] }}>
+              <Ionicons
+                name={isFavorite ? 'heart' : 'heart-outline'}
+                size={24}
+                color={isFavorite ? '#e74c3c' : Colors.text}
+              />
+            </Animated.View>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView
@@ -121,6 +178,16 @@ export default function ActivityDetailScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
+        {/* Soft-deleted banner */}
+        {isDeleted && (
+          <View style={styles.deletedBanner}>
+            <Ionicons name="alert-circle" size={18} color="#b45309" />
+            <Text style={styles.deletedBannerText}>
+              Cette activite a ete supprimee par son createur
+            </Text>
+          </View>
+        )}
+
         {/* Type badge */}
         <View style={[styles.badge, { backgroundColor: typeBg }]}>
           <Text style={[styles.badgeText, { color: typeColor }]}>
@@ -204,6 +271,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.sm,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
   },
   headerBtn: {
     width: 44,
@@ -334,5 +406,23 @@ const styles = StyleSheet.create({
     fontSize: FontSize.md,
     color: Colors.textSecondary,
     lineHeight: 22,
+  },
+  deletedBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    backgroundColor: '#fef3c7',
+    borderWidth: 1,
+    borderColor: '#f59e0b',
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    marginBottom: Spacing.lg,
+  },
+  deletedBannerText: {
+    flex: 1,
+    fontSize: FontSize.sm,
+    fontWeight: '600',
+    color: '#b45309',
   },
 });

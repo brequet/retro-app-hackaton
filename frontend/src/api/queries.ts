@@ -1,6 +1,6 @@
 import { api } from '../api/client';
 import { queryClient } from '../api/queryClient';
-import { Activity, QuizAnswers } from '../types';
+import { Activity, QuizAnswers, CreateActivityInput } from '../types';
 import { useFavoritesStore } from '../stores/favoritesStore';
 import { useToastStore } from '../stores/toastStore';
 
@@ -66,4 +66,25 @@ export async function removeFavorite(activityId: string): Promise<void> {
     useToastStore.getState().show('Impossible de retirer des favoris', 'error');
     throw new Error('Failed to remove favorite');
   }
+}
+
+// Activity CRUD
+export async function createActivity(data: CreateActivityInput): Promise<Activity> {
+  const activity = await api.post<Activity>('/api/activities', data);
+  queryClient.invalidateQueries({ queryKey: ['activities'] });
+  return activity;
+}
+
+export async function updateActivity(id: string, data: Partial<CreateActivityInput>): Promise<Activity> {
+  const activity = await api.put<Activity>(`/api/activities/${id}`, data);
+  queryClient.invalidateQueries({ queryKey: ['activities'] });
+  queryClient.invalidateQueries({ queryKey: ['activity', id] });
+  return activity;
+}
+
+export async function deleteActivity(id: string): Promise<void> {
+  await api.delete(`/api/activities/${id}`);
+  queryClient.invalidateQueries({ queryKey: ['activities'] });
+  queryClient.invalidateQueries({ queryKey: ['activity', id] });
+  queryClient.invalidateQueries({ queryKey: ['favorites'] });
 }

@@ -45,6 +45,13 @@ function RootLayoutInner() {
             presentation: 'card',
           }}
         />
+        <Stack.Screen
+          name="activity/create"
+          options={{
+            headerShown: false,
+            presentation: 'card',
+          }}
+        />
         <Stack.Screen name="+not-found" options={{ headerShown: false }} />
       </Stack>
       <Toast />
