@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, useWindowDimensions } from 'react-native';
+import React, { useRef } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Animated, useWindowDimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, BorderRadius, FontSize, Spacing, Shadows } from '../constants/theme';
 import { Activity } from '../types';
@@ -15,8 +15,22 @@ interface ActivityCardProps {
 export function ActivityCard({ activity, variant = 'compact' }: ActivityCardProps) {
   const { width } = useWindowDimensions();
   const isFavorite = useFavoritesStore((s) => s.favoriteIds.has(activity.id));
+  const heartScale = useRef(new Animated.Value(1)).current;
 
   const handleToggleFavorite = async () => {
+    Animated.sequence([
+      Animated.timing(heartScale, {
+        toValue: 1.4,
+        duration: 120,
+        useNativeDriver: true,
+      }),
+      Animated.timing(heartScale, {
+        toValue: 1,
+        duration: 120,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
     try {
       if (isFavorite) {
         await removeFavorite(activity.id);
@@ -107,11 +121,13 @@ export function ActivityCard({ activity, variant = 'compact' }: ActivityCardProp
         onPress={handleToggleFavorite}
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
       >
-        <Ionicons
-          name={isFavorite ? 'heart' : 'heart-outline'}
-          size={20}
-          color={isFavorite ? '#e74c3c' : Colors.inactive}
-        />
+        <Animated.View style={{ transform: [{ scale: heartScale }] }}>
+          <Ionicons
+            name={isFavorite ? 'heart' : 'heart-outline'}
+            size={20}
+            color={isFavorite ? '#e74c3c' : Colors.inactive}
+          />
+        </Animated.View>
       </TouchableOpacity>
     </TouchableOpacity>
   );

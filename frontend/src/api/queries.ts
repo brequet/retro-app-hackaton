@@ -1,6 +1,7 @@
 import { api } from '../api/client';
 import { Activity, QuizAnswers } from '../types';
 import { useFavoritesStore } from '../stores/favoritesStore';
+import { useToastStore } from '../stores/toastStore';
 
 // Activities
 export async function fetchActivities(type?: string): Promise<Activity[]> {
@@ -45,6 +46,7 @@ export async function addFavorite(activityId: string): Promise<void> {
     await api.post(`/api/favorites/${activityId}`);
   } catch {
     useFavoritesStore.getState().removeFavorite(activityId);
+    useToastStore.getState().show('Impossible d\'ajouter aux favoris', 'error');
     throw new Error('Failed to add favorite');
   }
 }
@@ -55,6 +57,7 @@ export async function removeFavorite(activityId: string): Promise<void> {
     await api.delete(`/api/favorites/${activityId}`);
   } catch {
     useFavoritesStore.getState().addFavorite(activityId);
+    useToastStore.getState().show('Impossible de retirer des favoris', 'error');
     throw new Error('Failed to remove favorite');
   }
 }

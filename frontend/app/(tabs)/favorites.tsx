@@ -11,6 +11,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { Colors, FontSize, Spacing, BorderRadius } from '../../src/constants/theme';
 import { ActivityCard } from '../../src/components/ActivityCard';
+import { ActivityCardSkeleton } from '../../src/components/Skeleton';
 import { fetchFavorites } from '../../src/api/queries';
 
 function EmptyState() {
@@ -21,6 +22,18 @@ function EmptyState() {
       <Text style={styles.emptySubtext}>
         Ajoute des activites a tes favoris depuis la recherche !
       </Text>
+    </View>
+  );
+}
+
+function LoadingState() {
+  return (
+    <View style={styles.loadingList}>
+      {[1, 2, 3].map((i) => (
+        <View key={i} style={styles.cardWrapper}>
+          <ActivityCardSkeleton />
+        </View>
+      ))}
     </View>
   );
 }
@@ -61,7 +74,7 @@ export default function FavoritesScreen() {
             tintColor={Colors.primary}
           />
         }
-        ListEmptyComponent={isLoading ? null : <EmptyState />}
+        ListEmptyComponent={isLoading ? <LoadingState /> : <EmptyState />}
         renderItem={({ item }) => (
           <View style={styles.cardWrapper}>
             <ActivityCard activity={item} variant="full" />
@@ -97,6 +110,9 @@ const styles = StyleSheet.create({
   },
   cardWrapper: {
     marginBottom: Spacing.md,
+  },
+  loadingList: {
+    paddingTop: Spacing.md,
   },
   emptyState: {
     flex: 1,

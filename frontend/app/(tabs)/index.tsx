@@ -15,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { Colors, FontSize, Spacing, BorderRadius, Shadows } from '../../src/constants/theme';
 import { ActivityCard } from '../../src/components/ActivityCard';
+import { ActivityCardSkeleton } from '../../src/components/Skeleton';
 import { Button } from '../../src/components/Button';
 import { fetchActivities, fetchRecentlyViewed, fetchFavorites } from '../../src/api/queries';
 import { useAuthStore } from '../../src/stores/authStore';
@@ -29,7 +30,20 @@ function SectionHeader({ icon, title }: { icon: string; title: string }) {
   );
 }
 
-function HorizontalActivityList({ activities }: { activities: Activity[] }) {
+function HorizontalSkeletonList() {
+  return (
+    <View style={[styles.horizontalList, { flexDirection: 'row' }]}>
+      {[1, 2, 3].map((i) => (
+        <View key={i} style={styles.compactCardWrapper}>
+          <ActivityCardSkeleton compact />
+        </View>
+      ))}
+    </View>
+  );
+}
+
+function HorizontalActivityList({ activities, isLoading }: { activities: Activity[]; isLoading?: boolean }) {
+  if (isLoading) return <HorizontalSkeletonList />;
   if (!activities.length) return null;
 
   return (
@@ -146,13 +160,13 @@ export default function HomeScreen() {
 
         {/* Recently Added */}
         <SectionHeader icon="add-circle-outline" title="Ajoutees recemment" />
-        <HorizontalActivityList activities={recentActivities} />
+        <HorizontalActivityList activities={recentActivities} isLoading={loadingActivities} />
 
         {/* Recently Viewed */}
-        {viewedActivities.length > 0 && (
+        {(loadingActivities || viewedActivities.length > 0) && (
           <>
             <SectionHeader icon="eye-outline" title="Consultes recemment" />
-            <HorizontalActivityList activities={viewedActivities} />
+            <HorizontalActivityList activities={viewedActivities} isLoading={loadingActivities} />
           </>
         )}
 

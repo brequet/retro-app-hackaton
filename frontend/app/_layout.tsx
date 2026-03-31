@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { Colors } from '../src/constants/theme';
 import { ResponsiveWrapper } from '../src/components/ResponsiveWrapper';
+import { Toast } from '../src/components/Toast';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -47,6 +48,7 @@ function RootLayoutInner() {
         />
         <Stack.Screen name="+not-found" options={{ headerShown: false }} />
       </Stack>
+      <Toast />
     </ResponsiveWrapper>
   );
 }

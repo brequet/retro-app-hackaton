@@ -1,23 +1,49 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  ActivityIndicator,
+  Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { Colors, FontSize, Spacing, BorderRadius, Shadows } from '../../src/constants/theme';
+import { Skeleton } from '../../src/components/Skeleton';
 import { fetchActivity, markAsViewed, addFavorite, removeFavorite } from '../../src/api/queries';
 import { useFavoritesStore } from '../../src/stores/favoritesStore';
+
+function DetailSkeleton() {
+  return (
+    <View style={{ paddingHorizontal: Spacing.xl, paddingTop: Spacing.md }}>
+      <Skeleton width={120} height={24} borderRadius={BorderRadius.sm} />
+      <Skeleton width="70%" height={34} style={{ marginTop: Spacing.md }} />
+      <View style={{ flexDirection: 'row', gap: Spacing.md, marginTop: Spacing.lg }}>
+        <Skeleton width={110} height={36} borderRadius={BorderRadius.full} />
+        <Skeleton width={110} height={36} borderRadius={BorderRadius.full} />
+      </View>
+      <View style={{ flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.lg }}>
+        <Skeleton width={80} height={28} borderRadius={BorderRadius.full} />
+        <Skeleton width={90} height={28} borderRadius={BorderRadius.full} />
+        <Skeleton width={70} height={28} borderRadius={BorderRadius.full} />
+      </View>
+      <Skeleton width="100%" height={16} style={{ marginTop: Spacing.xxl }} />
+      <Skeleton width="100%" height={16} style={{ marginTop: Spacing.sm }} />
+      <Skeleton width="80%" height={16} style={{ marginTop: Spacing.sm }} />
+      <Skeleton width="100%" height={16} style={{ marginTop: Spacing.xxl }} />
+      <Skeleton width="100%" height={16} style={{ marginTop: Spacing.sm }} />
+      <Skeleton width="60%" height={16} style={{ marginTop: Spacing.sm }} />
+    </View>
+  );
+}
 
 export default function ActivityDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const isFavorite = useFavoritesStore((s) => s.favoriteIds.has(id));
+  const heartScale = useRef(new Animated.Value(1)).current;
 
   const { data: activity, isLoading } = useQuery({
     queryKey: ['activity', id],
@@ -32,6 +58,20 @@ export default function ActivityDetailScreen() {
   }, [id]);
 
   const handleToggleFavorite = async () => {
+    // Animate the heart
+    Animated.sequence([
+      Animated.timing(heartScale, {
+        toValue: 1.4,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+      Animated.timing(heartScale, {
+        toValue: 1,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
     try {
       if (isFavorite) {
         await removeFavorite(id);
@@ -44,9 +84,13 @@ export default function ActivityDetailScreen() {
   if (isLoading || !activity) {
     return (
       <SafeAreaView style={styles.safe}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={Colors.primary} />
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
+            <Ionicons name="arrow-back" size={24} color={Colors.text} />
+          </TouchableOpacity>
+          <View style={styles.headerBtn} />
         </View>
+        <DetailSkeleton />
       </SafeAreaView>
     );
   }
@@ -62,11 +106,13 @@ export default function ActivityDetailScreen() {
           <Ionicons name="arrow-back" size={24} color={Colors.text} />
         </TouchableOpacity>
         <TouchableOpacity onPress={handleToggleFavorite} style={styles.headerBtn}>
-          <Ionicons
-            name={isFavorite ? 'heart' : 'heart-outline'}
-            size={24}
-            color={isFavorite ? '#e74c3c' : Colors.text}
-          />
+          <Animated.View style={{ transform: [{ scale: heartScale }] }}>
+            <Ionicons
+              name={isFavorite ? 'heart' : 'heart-outline'}
+              size={24}
+              color={isFavorite ? '#e74c3c' : Colors.text}
+            />
+          </Animated.View>
         </TouchableOpacity>
       </View>
 
@@ -151,11 +197,6 @@ const styles = StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: Colors.background,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   header: {
     flexDirection: 'row',

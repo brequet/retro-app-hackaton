@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -289,8 +289,27 @@ export default function SearchScreen() {
   const [answers, setAnswers] = useState<QuizAnswers>({});
   const [result, setResult] = useState<Activity | null>(null);
   const [loading, setLoading] = useState(false);
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+  const slideAnim = useRef(new Animated.Value(0)).current;
 
   const step = STEPS[currentStep];
+
+  const animateStepTransition = (direction: 'forward' | 'backward', callback: () => void) => {
+    const slideOut = direction === 'forward' ? -30 : 30;
+    const slideIn = direction === 'forward' ? 30 : -30;
+
+    Animated.parallel([
+      Animated.timing(fadeAnim, { toValue: 0, duration: 120, useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: slideOut, duration: 120, useNativeDriver: true }),
+    ]).start(() => {
+      callback();
+      slideAnim.setValue(slideIn);
+      Animated.parallel([
+        Animated.timing(fadeAnim, { toValue: 1, duration: 200, useNativeDriver: true }),
+        Animated.timing(slideAnim, { toValue: 0, duration: 200, useNativeDriver: true }),
+      ]).start();
+    });
+  };
 
   const handleAnswer = (key: string, value: string) => {
     setAnswers((prev) => ({ ...prev, [key]: value }));
@@ -313,17 +332,23 @@ export default function SearchScreen() {
 
   const handleNext = async () => {
     if (currentStep < 3) {
-      setCurrentStep((prev) => prev + 1);
+      animateStepTransition('forward', () => {
+        setCurrentStep((prev) => prev + 1);
+      });
     } else if (currentStep === 3) {
       // Fetch recommendation
       setLoading(true);
       try {
         const activity = await fetchRecommendation(answers);
-        setResult(activity);
-        setCurrentStep(4);
+        animateStepTransition('forward', () => {
+          setResult(activity);
+          setCurrentStep(4);
+        });
       } catch (e) {
-        setResult(null);
-        setCurrentStep(4);
+        animateStepTransition('forward', () => {
+          setResult(null);
+          setCurrentStep(4);
+        });
       } finally {
         setLoading(false);
       }
@@ -332,14 +357,18 @@ export default function SearchScreen() {
 
   const handleBack = () => {
     if (currentStep > 0) {
-      setCurrentStep((prev) => prev - 1);
+      animateStepTransition('backward', () => {
+        setCurrentStep((prev) => prev - 1);
+      });
     }
   };
 
   const handleRestart = () => {
-    setCurrentStep(0);
-    setAnswers({});
-    setResult(null);
+    animateStepTransition('forward', () => {
+      setCurrentStep(0);
+      setAnswers({});
+      setResult(null);
+    });
   };
 
   return (
@@ -367,19 +396,21 @@ export default function SearchScreen() {
         {step !== 'result' && <ProgressBar step={currentStep + 1} />}
 
         {/* Step Content */}
-        {step === 'type' && (
-          <StepType selected={answers.type} onSelect={(v) => handleAnswer('type', v)} />
-        )}
-        {step === 'teamSize' && (
-          <StepTeamSize selected={answers.teamSize} onSelect={(v) => handleAnswer('teamSize', v)} />
-        )}
-        {step === 'duration' && (
-          <StepDuration selected={answers.duration} onSelect={(v) => handleAnswer('duration', v)} />
-        )}
-        {step === 'mood' && (
-          <StepMood selected={answers.mood} onSelect={(v) => handleAnswer('mood', v)} />
-        )}
-        {step === 'result' && <StepResult activity={result} onRestart={handleRestart} />}
+        <Animated.View style={{ opacity: fadeAnim, transform: [{ translateX: slideAnim }] }}>
+          {step === 'type' && (
+            <StepType selected={answers.type} onSelect={(v) => handleAnswer('type', v)} />
+          )}
+          {step === 'teamSize' && (
+            <StepTeamSize selected={answers.teamSize} onSelect={(v) => handleAnswer('teamSize', v)} />
+          )}
+          {step === 'duration' && (
+            <StepDuration selected={answers.duration} onSelect={(v) => handleAnswer('duration', v)} />
+          )}
+          {step === 'mood' && (
+            <StepMood selected={answers.mood} onSelect={(v) => handleAnswer('mood', v)} />
+          )}
+          {step === 'result' && <StepResult activity={result} onRestart={handleRestart} />}
+        </Animated.View>
 
         {/* Continue Button */}
         {step !== 'result' && (
