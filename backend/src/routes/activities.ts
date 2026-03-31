@@ -5,16 +5,26 @@ import { v4 as uuidv4 } from 'uuid';
 
 const router = Router();
 
-// Get all activities (public)
+// Get all activities (public) - supports ?type=retro|icebreaker&search=text
 router.get('/', (req, res: Response): void => {
   try {
-    const { type } = req.query;
-    let activities;
+    const { type, search } = req.query;
+    const conditions: string[] = [];
+    const params: any[] = [];
+
     if (type && (type === 'retro' || type === 'icebreaker')) {
-      activities = db.prepare('SELECT * FROM activities WHERE type = ? ORDER BY created_at DESC').all(type);
-    } else {
-      activities = db.prepare('SELECT * FROM activities ORDER BY created_at DESC').all();
+      conditions.push('type = ?');
+      params.push(type);
     }
+
+    if (search && typeof search === 'string' && search.trim()) {
+      const term = `%${search.trim().toLowerCase()}%`;
+      conditions.push('(LOWER(title) LIKE ? OR LOWER(description) LIKE ? OR LOWER(tags) LIKE ?)');
+      params.push(term, term, term);
+    }
+
+    const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    const activities = db.prepare(`SELECT * FROM activities ${where} ORDER BY created_at DESC`).all(...params);
 
     // Parse JSON fields
     const parsed = (activities as any[]).map((a) => ({

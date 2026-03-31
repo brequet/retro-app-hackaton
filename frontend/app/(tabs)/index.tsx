@@ -113,7 +113,7 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.safe}>
       <ScrollView
         style={styles.container}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { maxWidth: 1200, alignSelf: 'center', width: '100%' }]}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -143,7 +143,7 @@ export default function HomeScreen() {
         {/* CTA Button */}
         <TouchableOpacity
           style={styles.ctaCard}
-          onPress={() => router.push('/(tabs)/search')}
+          onPress={() => router.push('/quiz')}
           activeOpacity={0.85}
         >
           <View style={styles.ctaContent}>
@@ -232,10 +232,11 @@ const styles = StyleSheet.create({
   },
   ctaCard: {
     marginHorizontal: Spacing.xl,
-    marginVertical: Spacing.lg,
+    marginTop: Spacing.md,
+    marginBottom: Spacing.sm,
     backgroundColor: Colors.primary,
     borderRadius: BorderRadius.lg,
-    padding: Spacing.xl,
+    padding: Spacing.lg,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -266,19 +267,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: Spacing.sm,
     paddingHorizontal: Spacing.xl,
-    paddingTop: Spacing.xl,
-    paddingBottom: Spacing.md,
+    paddingTop: Spacing.lg,
+    paddingBottom: Spacing.sm,
   },
   sectionTitle: {
-    fontSize: FontSize.lg,
+    fontSize: FontSize.md,
     fontWeight: '700',
     color: Colors.text,
   },
   horizontalList: {
     paddingHorizontal: Spacing.xl,
-    gap: Spacing.md,
+    gap: Spacing.sm,
   },
   compactCardWrapper: {
-    marginRight: Spacing.md,
+    marginRight: Spacing.sm,
   },
 });

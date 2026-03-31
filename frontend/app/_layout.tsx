@@ -1,21 +1,13 @@
 import React, { useEffect } from 'react';
 import { Stack } from 'expo-router';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from '../src/api/queryClient';
 import { useAuthStore } from '../src/stores/authStore';
 import { StatusBar } from 'expo-status-bar';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { Colors } from '../src/constants/theme';
 import { ResponsiveWrapper } from '../src/components/ResponsiveWrapper';
 import { Toast } from '../src/components/Toast';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      staleTime: 30000,
-    },
-  },
-});
 
 function RootLayoutInner() {
   const { isLoading, loadToken } = useAuthStore();
@@ -39,6 +31,13 @@ function RootLayoutInner() {
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="quiz"
+          options={{
+            headerShown: false,
+            presentation: 'card',
+          }}
+        />
         <Stack.Screen
           name="activity/[id]"
           options={{

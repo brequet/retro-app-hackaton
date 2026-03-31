@@ -46,9 +46,9 @@ export default function TabLayout() {
       <Tabs.Screen
         name="search"
         options={{
-          title: 'Recherche',
+          title: 'Explorer',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="search-outline" size={size} color={color} />
+            <Ionicons name="compass-outline" size={size} color={color} />
           ),
         }}
       />
@@ -70,9 +70,9 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     borderTopWidth: 1,
     borderTopColor: Colors.borderLight,
-    height: Platform.OS === 'ios' ? 88 : 64,
+    height: Platform.select({ ios: 88, android: 64, web: 68, default: 64 }),
     paddingTop: 8,
-    paddingBottom: Platform.OS === 'ios' ? 28 : 8,
+    paddingBottom: Platform.select({ ios: 28, android: 8, web: 12, default: 8 }),
     elevation: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },

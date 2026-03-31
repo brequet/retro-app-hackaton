@@ -1,38 +1,40 @@
 import React from 'react';
 import { View, StyleSheet, Platform, useWindowDimensions } from 'react-native';
-import { Colors, Shadows } from '../constants/theme';
+import { Colors } from '../constants/theme';
 
-const MAX_MOBILE_WIDTH = 480;
+// Breakpoints
+export const BREAKPOINTS = {
+  mobile: 480,
+  tablet: 768,
+  desktop: 1024,
+};
+
+export function useBreakpoint() {
+  const { width } = useWindowDimensions();
+  if (width >= BREAKPOINTS.desktop) return 'desktop';
+  if (width >= BREAKPOINTS.tablet) return 'tablet';
+  return 'mobile';
+}
 
 export function ResponsiveWrapper({ children }: { children: React.ReactNode }) {
   const { width } = useWindowDimensions();
 
-  // On web with large screens, constrain to mobile-like width
-  if (Platform.OS === 'web' && width > MAX_MOBILE_WIDTH) {
-    return (
-      <View style={styles.desktopContainer}>
-        <View style={[styles.mobileFrame, { maxWidth: MAX_MOBILE_WIDTH }]}>
-          {children}
-        </View>
-      </View>
-    );
+  // On native platforms, no wrapper needed
+  if (Platform.OS !== 'web') {
+    return <>{children}</>;
   }
 
-  return <>{children}</>;
+  // On web, always use full width - let the content itself be responsive
+  return (
+    <View style={styles.webContainer}>
+      {children}
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
-  desktopContainer: {
+  webContainer: {
     flex: 1,
-    backgroundColor: '#e8e8e8',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  mobileFrame: {
-    flex: 1,
-    width: '100%',
     backgroundColor: Colors.background,
-    ...Shadows.lg,
-    overflow: 'hidden',
   },
 });

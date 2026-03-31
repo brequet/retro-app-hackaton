@@ -1,12 +1,16 @@
 import { api } from '../api/client';
+import { queryClient } from '../api/queryClient';
 import { Activity, QuizAnswers } from '../types';
 import { useFavoritesStore } from '../stores/favoritesStore';
 import { useToastStore } from '../stores/toastStore';
 
 // Activities
-export async function fetchActivities(type?: string): Promise<Activity[]> {
-  const query = type ? `?type=${type}` : '';
-  return api.get<Activity[]>(`/api/activities${query}`);
+export async function fetchActivities(params?: { type?: string; search?: string }): Promise<Activity[]> {
+  const query = new URLSearchParams();
+  if (params?.type) query.set('type', params.type);
+  if (params?.search) query.set('search', params.search);
+  const qs = query.toString();
+  return api.get<Activity[]>(`/api/activities${qs ? `?${qs}` : ''}`);
 }
 
 export async function fetchActivity(id: string): Promise<Activity> {
@@ -44,6 +48,7 @@ export async function addFavorite(activityId: string): Promise<void> {
   useFavoritesStore.getState().addFavorite(activityId);
   try {
     await api.post(`/api/favorites/${activityId}`);
+    queryClient.invalidateQueries({ queryKey: ['favorites'] });
   } catch {
     useFavoritesStore.getState().removeFavorite(activityId);
     useToastStore.getState().show('Impossible d\'ajouter aux favoris', 'error');
@@ -55,6 +60,7 @@ export async function removeFavorite(activityId: string): Promise<void> {
   useFavoritesStore.getState().removeFavorite(activityId);
   try {
     await api.delete(`/api/favorites/${activityId}`);
+    queryClient.invalidateQueries({ queryKey: ['favorites'] });
   } catch {
     useFavoritesStore.getState().addFavorite(activityId);
     useToastStore.getState().show('Impossible de retirer des favoris', 'error');

@@ -5,6 +5,7 @@ import {
   StyleSheet,
   FlatList,
   RefreshControl,
+  useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -13,6 +14,7 @@ import { Colors, FontSize, Spacing, BorderRadius } from '../../src/constants/the
 import { ActivityCard } from '../../src/components/ActivityCard';
 import { ActivityCardSkeleton } from '../../src/components/Skeleton';
 import { fetchFavorites } from '../../src/api/queries';
+import { BREAKPOINTS } from '../../src/components/ResponsiveWrapper';
 
 function EmptyState() {
   return (
@@ -39,6 +41,9 @@ function LoadingState() {
 }
 
 export default function FavoritesScreen() {
+  const { width } = useWindowDimensions();
+  const numColumns = width >= BREAKPOINTS.desktop ? 3 : width >= BREAKPOINTS.tablet ? 2 : 1;
+
   const {
     data: favorites,
     isLoading,
@@ -58,15 +63,17 @@ export default function FavoritesScreen() {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <View style={styles.header}>
+      <View style={[styles.header, { maxWidth: 1200, alignSelf: 'center', width: '100%' }]}>
         <Ionicons name="heart" size={24} color={Colors.primary} />
         <Text style={styles.headerTitle}>Mes coups de coeur</Text>
       </View>
 
       <FlatList
+        key={`fav-cols-${numColumns}`}
         data={favorites || []}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.list}
+        numColumns={numColumns}
+        contentContainerStyle={[styles.list, { maxWidth: 1200, alignSelf: 'center', width: '100%' }]}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -75,9 +82,15 @@ export default function FavoritesScreen() {
           />
         }
         ListEmptyComponent={isLoading ? <LoadingState /> : <EmptyState />}
-        renderItem={({ item }) => (
-          <View style={styles.cardWrapper}>
-            <ActivityCard activity={item} variant="full" />
+        renderItem={({ item, index }) => (
+          <View style={[
+            styles.cardWrapper,
+            numColumns > 1 && {
+              flex: 1 / numColumns,
+              paddingLeft: index % numColumns !== 0 ? Spacing.sm : 0,
+            },
+          ]}>
+            <ActivityCard activity={item} variant="list" />
           </View>
         )}
       />
