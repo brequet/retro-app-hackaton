@@ -48,8 +48,8 @@ export default function RegisterScreen() {
     try {
       await register(email.trim(), name.trim(), password);
       router.replace('/(tabs)');
-    } catch (e: any) {
-      setError(e.message || "Erreur lors de l'inscription");
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Erreur lors de l'inscription");
     } finally {
       setLoading(false);
     }

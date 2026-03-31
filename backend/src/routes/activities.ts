@@ -157,13 +157,40 @@ router.post('/', authMiddleware, (req: AuthRequest, res: Response): void => {
     } = req.body;
 
     // Validation
-    if (!title || !type || !duration || !description) {
-      res.status(400).json({ error: 'title, type, duration, and description are required' });
+    if (!title || typeof title !== 'string' || !title.trim()) {
+      res.status(400).json({ error: 'title is required' });
       return;
     }
-
-    if (type !== 'retro' && type !== 'icebreaker') {
+    if (title.length > 200) {
+      res.status(400).json({ error: 'title must be 200 characters or less' });
+      return;
+    }
+    if (!type || (type !== 'retro' && type !== 'icebreaker')) {
       res.status(400).json({ error: 'type must be "retro" or "icebreaker"' });
+      return;
+    }
+    if (!duration || typeof duration !== 'string') {
+      res.status(400).json({ error: 'duration is required' });
+      return;
+    }
+    if (!description || typeof description !== 'string' || !description.trim()) {
+      res.status(400).json({ error: 'description is required' });
+      return;
+    }
+    if (description.length > 5000) {
+      res.status(400).json({ error: 'description must be 5000 characters or less' });
+      return;
+    }
+    if (tags && !Array.isArray(tags)) {
+      res.status(400).json({ error: 'tags must be an array' });
+      return;
+    }
+    if (instructions && !Array.isArray(instructions)) {
+      res.status(400).json({ error: 'instructions must be an array' });
+      return;
+    }
+    if (materials && !Array.isArray(materials)) {
+      res.status(400).json({ error: 'materials must be an array' });
       return;
     }
 
@@ -173,16 +200,16 @@ router.post('/', authMiddleware, (req: AuthRequest, res: Response): void => {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       id,
-      title,
+      title.trim(),
       type,
       duration,
-      duration_min || 0,
-      duration_max || 0,
+      Number(duration_min) || 0,
+      Number(duration_max) || 0,
       team_size || '',
-      team_size_min || 0,
-      team_size_max || 0,
+      Number(team_size_min) || 0,
+      Number(team_size_max) || 0,
       JSON.stringify(tags || []),
-      description,
+      description.trim(),
       JSON.stringify(instructions || []),
       JSON.stringify(materials || []),
       req.userId!
@@ -241,6 +268,32 @@ router.put('/:id', authMiddleware, (req: AuthRequest, res: Response): void => {
       instructions,
       materials,
     } = req.body;
+
+    // Validate type if provided
+    if (type && type !== 'retro' && type !== 'icebreaker') {
+      res.status(400).json({ error: 'type must be "retro" or "icebreaker"' });
+      return;
+    }
+    if (title && (typeof title !== 'string' || title.length > 200)) {
+      res.status(400).json({ error: 'title must be a string of 200 characters or less' });
+      return;
+    }
+    if (description && (typeof description !== 'string' || description.length > 5000)) {
+      res.status(400).json({ error: 'description must be a string of 5000 characters or less' });
+      return;
+    }
+    if (tags && !Array.isArray(tags)) {
+      res.status(400).json({ error: 'tags must be an array' });
+      return;
+    }
+    if (instructions && !Array.isArray(instructions)) {
+      res.status(400).json({ error: 'instructions must be an array' });
+      return;
+    }
+    if (materials && !Array.isArray(materials)) {
+      res.status(400).json({ error: 'materials must be an array' });
+      return;
+    }
 
     db.prepare(`
       UPDATE activities SET

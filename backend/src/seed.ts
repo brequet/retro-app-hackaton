@@ -286,8 +286,8 @@ const activities = [
   },
 ];
 
-// Clear existing activities and insert seed data
-const deleteStmt = db.prepare('DELETE FROM activities');
+// Clear only seeded activities (those with no creator) and insert seed data
+const deleteStmt = db.prepare('DELETE FROM activities WHERE creator_id IS NULL');
 const insertStmt = db.prepare(`
   INSERT INTO activities (id, title, type, duration, duration_min, duration_max, team_size, team_size_min, team_size_max, tags, description, instructions, materials)
   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)

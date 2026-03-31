@@ -60,11 +60,9 @@ export function initializeDatabase() {
 
     CREATE INDEX IF NOT EXISTS idx_favorites_user ON favorites(user_id);
     CREATE INDEX IF NOT EXISTS idx_recently_viewed_user ON recently_viewed(user_id, viewed_at DESC);
-    CREATE INDEX IF NOT EXISTS idx_activities_creator ON activities(creator_id);
-    CREATE INDEX IF NOT EXISTS idx_activities_deleted ON activities(deleted_at);
   `);
 
-  // Migration: add creator_id column if it doesn't exist (for existing databases)
+  // Migration: add creator_id and deleted_at columns if they don't exist (for existing databases)
   try {
     const columns = db.prepare("PRAGMA table_info(activities)").all() as any[];
     const hasCreatorId = columns.some((c: any) => c.name === 'creator_id');
@@ -81,6 +79,12 @@ export function initializeDatabase() {
   } catch (e) {
     // Columns already exist or table was just created with them
   }
+
+  // Create indexes that depend on migrated columns (must run after migration)
+  db.exec(`
+    CREATE INDEX IF NOT EXISTS idx_activities_creator ON activities(creator_id);
+    CREATE INDEX IF NOT EXISTS idx_activities_deleted ON activities(deleted_at);
+  `);
 
   console.log('Database initialized successfully');
 }

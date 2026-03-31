@@ -59,7 +59,7 @@ export default function FavoritesScreen() {
     setRefreshing(true);
     await refetch();
     setRefreshing(false);
-  }, []);
+  }, [refetch]);
 
   return (
     <SafeAreaView style={styles.safe}>

@@ -7,7 +7,6 @@ import {
   Platform,
   ScrollView,
   TouchableOpacity,
-  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -37,8 +36,8 @@ export default function LoginScreen() {
     try {
       await login(email.trim(), password);
       router.replace('/(tabs)');
-    } catch (e: any) {
-      setError(e.message || 'Erreur de connexion');
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Erreur de connexion');
     } finally {
       setLoading(false);
     }

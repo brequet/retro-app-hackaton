@@ -3,9 +3,9 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import db from '../db/database';
+import { JWT_SECRET } from '../config';
 
 const router = Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'retro-icebreaker-secret-key-hackathon-2026';
 
 router.post('/register', async (req, res: Response): Promise<void> => {
   try {

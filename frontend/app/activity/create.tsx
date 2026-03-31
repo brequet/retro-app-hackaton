@@ -9,6 +9,7 @@ import {
   Alert,
   Platform,
   KeyboardAvoidingView,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -54,7 +55,7 @@ export default function CreateActivityScreen() {
   const showToast = useToastStore((s) => s.show);
 
   // Load existing activity if editing
-  const { data: existingActivity } = useQuery({
+  const { data: existingActivity, isLoading: isLoadingExisting } = useQuery({
     queryKey: ['activity', params.editId],
     queryFn: () => fetchActivity(params.editId!),
     enabled: isEdit,
@@ -176,12 +177,31 @@ export default function CreateActivityScreen() {
         return;
       }
       router.back();
-    } catch (e: any) {
-      showToast(e.message || 'Une erreur est survenue', 'error');
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : 'Une erreur est survenue';
+      showToast(message, 'error');
     } finally {
       setLoading(false);
     }
   };
+
+  // Show loading spinner while fetching existing activity for edit mode
+  if (isEdit && isLoadingExisting) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
+            <Ionicons name="arrow-back" size={24} color={Colors.text} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Modifier l'activite</Text>
+          <View style={styles.headerBtn} />
+        </View>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -608,5 +628,10 @@ const styles = StyleSheet.create({
   },
   submitRow: {
     marginTop: Spacing.xxl,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

@@ -98,7 +98,7 @@ export default function HomeScreen() {
     setRefreshing(true);
     await Promise.all([refetchActivities(), refetchRecent(), refetchFavorites()]);
     setRefreshing(false);
-  }, []);
+  }, [refetchActivities, refetchRecent, refetchFavorites]);
 
   const recentActivities = activities?.slice(0, 6) || [];
   const viewedActivities = recentlyViewed?.slice(0, 6) || [];

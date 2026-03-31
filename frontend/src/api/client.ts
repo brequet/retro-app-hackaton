@@ -1,4 +1,4 @@
-import { API_URL } from '../constants/theme';
+import { API_URL } from '../constants/config';
 import { useAuthStore } from '../stores/authStore';
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
@@ -38,6 +38,11 @@ class ApiClient {
     });
 
     if (!response.ok) {
+      // Auto-logout on 401 (expired/invalid token)
+      if (response.status === 401 && !noAuth) {
+        useAuthStore.getState().logout();
+      }
+
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.error || `HTTP ${response.status}`);
     }
