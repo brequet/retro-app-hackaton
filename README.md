@@ -5,7 +5,8 @@ Application mobile-first pour aider les equipes agiles a trouver la retrospectiv
 ## Pre-requis
 
 - **Node.js** >= 18
-- **npm** >= 9
+- **npm** >= 9 (ou **pnpm** >= 8)
+- **Windows** : Visual Studio Build Tools (pour compiler `better-sqlite3` sur Node >= 24)
 
 ## Installation
 
@@ -13,11 +14,26 @@ Application mobile-first pour aider les equipes agiles a trouver la retrospectiv
 # Backend
 cd backend
 npm install
+# ou : pnpm install
 
 # Frontend
 cd ../frontend
 npm install
+# ou : pnpm install
 ```
+
+### Probleme avec better-sqlite3 sur Node >= 24
+
+Si vous obtenez une erreur `Could not locate the bindings file` avec `node-v137`, il faut recompiler le module natif :
+
+```bash
+cd backend
+npx node-gyp rebuild --directory=node_modules/better-sqlite3
+# ou avec pnpm :
+npx node-gyp rebuild --directory=node_modules/.pnpm/better-sqlite3@12.8.0/node_modules/better-sqlite3
+```
+
+Necessite Python 3 et Visual Studio Build Tools (C++ desktop workload).
 
 ## Lancer le backend
 
