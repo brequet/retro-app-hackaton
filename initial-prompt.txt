@@ -1,0 +1,25 @@
+I am participating in a vibe coding hackaton.
+The goal is to create a cross plateform mobile first (and computer too, so think about responsive) app for agile team.
+
+Advised tech stack for such a vibe coded project:
+Frontend: React Native + TypeScript.
+Routing: Expo Router.
+Styling: NativeWind or Tamagui if you want fast Figma-to-UI work, otherwise plain StyleSheet for fewer surprises.
+State: Zustand for local state, React Query/TanStack Query for server data.
+Backend: Just do a typescript server, use sqlite for DB. Think modern, clean, simple.
+
+FOcus on whats known and work best for fast vibe coded hackaton project.
+
+Design: do nice and modern design. Something clean. Shadcn like. Use building blocks if you have some (expo etc..).
+
+Implement auth, simple for now, register and login (no mail to send/confirm, no 2FA, no oauth, lets begin simple)
+
+You can find the figma presentation .MAKE extracted into the folder C:\dev\projects\retro-app-hackaton\resources\from_figma_make-Application-de-Retro-et-Icebreaker
+-> in there you can find data like the chat the hackaton owner used to create its figma maquette. Use it to understand the app goal and parts to create yourself a backlog.
+
+I want you to:
+First, understand what you need to do. Understand the project and what we want. You have a lot of data to harvest from figma extract make file.
+Then, create yourself a full and huge backlog of things. You can even dedicate a file at root of project repo to keep track if your TODOs aren't enough.
+Lastly, iterate over and over on whats left to do. You can refine and add TODOs as you discover things you need to do. I want you to be autonomous as much as possible.
+
+If at any point you are technically blocked (missing a tool on the computer or whatever), you can ask for help, but try to be as specific as possible in your question, and try to do some research on your own before asking.
