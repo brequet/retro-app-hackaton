@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react';
-import { Tabs, Redirect } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '../../src/constants/theme';
-import { useAuthStore } from '../../src/stores/authStore';
-import { useFavoritesStore } from '../../src/stores/favoritesStore';
-import { fetchFavoriteIds } from '../../src/api/queries';
-import { Platform, StyleSheet } from 'react-native';
+import React, { useEffect } from "react";
+import { Tabs, Redirect } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { Colors } from "../../src/constants/theme";
+import { useAuthStore } from "../../src/stores/authStore";
+import { useFavoritesStore } from "../../src/stores/favoritesStore";
+import { fetchFavoriteIds } from "../../src/api/queries";
+import { Platform, StyleSheet } from "react-native";
 
 export default function TabLayout() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -37,7 +37,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Accueil',
+          title: "Accueil",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="home-outline" size={size} color={color} />
           ),
@@ -46,7 +46,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="search"
         options={{
-          title: 'Explorer',
+          title: "Explorer",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="compass-outline" size={size} color={color} />
           ),
@@ -55,7 +55,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="favorites"
         options={{
-          title: 'Favoris',
+          title: "Favoris",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="heart-outline" size={size} color={color} />
           ),
@@ -72,15 +72,14 @@ const styles = StyleSheet.create({
     borderTopColor: Colors.borderLight,
     height: Platform.select({ ios: 88, android: 64, web: 68, default: 64 }),
     paddingTop: 8,
-    paddingBottom: Platform.select({ ios: 28, android: 8, web: 12, default: 8 }),
     elevation: 8,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
   },
   tabLabel: {
     fontSize: 11,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });
