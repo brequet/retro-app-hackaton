@@ -83,6 +83,7 @@ export default function HomeScreen() {
   } = useQuery({
     queryKey: ['recentlyViewed'],
     queryFn: fetchRecentlyViewed,
+    staleTime: 0, // Always refetch when returning to this screen
   });
 
   const {

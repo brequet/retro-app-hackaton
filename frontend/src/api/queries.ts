@@ -33,6 +33,7 @@ export async function fetchRecentlyViewed(): Promise<Activity[]> {
 
 export async function markAsViewed(activityId: string): Promise<void> {
   await api.post(`/api/activities/${activityId}/view`);
+  queryClient.invalidateQueries({ queryKey: ['recentlyViewed'] });
 }
 
 // Favorites
