@@ -36,17 +36,11 @@ WORKDIR /app
 # Install sqlite3 for better-sqlite3 native module
 RUN apk add --no-cache sqlite
 
-# Copy workspace files for production install
-COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
-COPY backend/package.json ./backend/
-COPY frontend/package.json ./frontend/
-RUN pnpm install --prod --frozen-lockfile --filter backend
-
 # Copy the built application from the builder stage
 COPY --from=builder /workspace/backend/dist ./dist
 
-# Copy backend node_modules
-COPY --from=production /workspace/backend/node_modules ./node_modules
+# Copy backend node_modules from the builder stage
+COPY --from=builder /workspace/backend/node_modules ./node_modules
 
 # Create data directory for SQLite database
 RUN mkdir -p /app/data
