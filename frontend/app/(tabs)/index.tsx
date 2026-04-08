@@ -369,7 +369,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.lg,
     padding: Spacing.lg,
     borderLeftWidth: 4,
-    borderLeftColor: Colors.accent,
+    borderLeftColor: Colors.article,
     ...Shadows.sm,
   },
   articleTitle: {

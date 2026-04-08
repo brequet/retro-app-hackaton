@@ -37,6 +37,9 @@ export const Colors = {
   // Activity type colors
   retro: '#0891b2',
   icebreaker: '#f59e0b',
+  
+  // Article color (purple/violet)
+  article: '#8b5cf6',
 };
 
 export const Spacing = {
