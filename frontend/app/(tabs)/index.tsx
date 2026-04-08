@@ -16,7 +16,6 @@ import { useQuery } from '@tanstack/react-query';
 import { Colors, FontSize, Spacing, BorderRadius, Shadows } from '../../src/constants/theme';
 import { ActivityCard } from '../../src/components/ActivityCard';
 import { ActivityCardSkeleton } from '../../src/components/Skeleton';
-import { Button } from '../../src/components/Button';
 import { fetchActivities, fetchRecentlyViewed, fetchArticles } from '../../src/api/queries';
 import { useAuthStore } from '../../src/stores/authStore';
 import { Activity } from '../../src/types';
