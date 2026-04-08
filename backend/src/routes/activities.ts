@@ -1,6 +1,6 @@
 import { Router, Response } from 'express';
 import db from '../db/database';
-import { AuthRequest, authMiddleware } from '../middleware/auth';
+import { AuthRequest, authMiddleware, optionalAuthMiddleware } from '../middleware/auth';
 import { v4 as uuidv4 } from 'uuid';
 
 const router = Router();
@@ -12,16 +12,34 @@ function parseActivity(a: any) {
     tags: JSON.parse(a.tags),
     instructions: JSON.parse(a.instructions),
     materials: JSON.parse(a.materials),
+    is_global: !!a.is_global,
   };
 }
 
-// Get all activities (public) - supports ?type=retro|icebreaker&search=text
-// Excludes soft-deleted activities
-router.get('/', (req, res: Response): void => {
+// Build visibility WHERE clause:
+// User sees: global activities (is_global=1 OR creator_id IS NULL) + their own
+function visibilityCondition(userId?: string): { clause: string; params: any[] } {
+  if (userId) {
+    return {
+      clause: '(is_global = 1 OR creator_id IS NULL OR creator_id = ?)',
+      params: [userId],
+    };
+  }
+  // Unauthenticated: only global/seed activities
+  return {
+    clause: '(is_global = 1 OR creator_id IS NULL)',
+    params: [],
+  };
+}
+
+// Get all activities - supports ?type=retro|icebreaker&search=text
+// Visibility: global + user's own. Excludes soft-deleted.
+router.get('/', optionalAuthMiddleware, (req: AuthRequest, res: Response): void => {
   try {
     const { type, search } = req.query;
-    const conditions: string[] = ['deleted_at IS NULL'];
-    const params: any[] = [];
+    const vis = visibilityCondition(req.userId);
+    const conditions: string[] = ['deleted_at IS NULL', vis.clause];
+    const params: any[] = [...vis.params];
 
     if (type && (type === 'retro' || type === 'icebreaker')) {
       conditions.push('type = ?');
@@ -34,7 +52,7 @@ router.get('/', (req, res: Response): void => {
       params.push(term, term, term);
     }
 
-    const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    const where = `WHERE ${conditions.join(' AND ')}`;
     const activities = db.prepare(`SELECT * FROM activities ${where} ORDER BY created_at DESC`).all(...params);
 
     const parsed = (activities as any[]).map(parseActivity);
@@ -46,8 +64,8 @@ router.get('/', (req, res: Response): void => {
 });
 
 // Recommend activity based on quiz params (MUST be before /:id)
-// Excludes soft-deleted activities
-router.get('/recommend/quiz', (req, res: Response): void => {
+// Same visibility rules
+router.get('/recommend/quiz', optionalAuthMiddleware, (req: AuthRequest, res: Response): void => {
   try {
     const { type, teamSize, duration, mood } = req.query;
 
@@ -56,7 +74,13 @@ router.get('/recommend/quiz', (req, res: Response): void => {
       return;
     }
 
-    let activities = db.prepare('SELECT * FROM activities WHERE type = ? AND deleted_at IS NULL').all(type as string) as any[];
+    const vis = visibilityCondition(req.userId);
+    const conditions = ['type = ?', 'deleted_at IS NULL', vis.clause];
+    const params = [type as string, ...vis.params];
+
+    let activities = db
+      .prepare(`SELECT * FROM activities WHERE ${conditions.join(' AND ')}`)
+      .all(...params) as any[];
 
     activities = activities.map(parseActivity);
 
@@ -64,7 +88,6 @@ router.get('/recommend/quiz', (req, res: Response): void => {
     const scored = activities.map((activity) => {
       let score = 0;
 
-      // Team size match
       if (teamSize) {
         const [minStr, maxStr] = (teamSize as string).split('-');
         const userMin = parseInt(minStr);
@@ -74,7 +97,6 @@ router.get('/recommend/quiz', (req, res: Response): void => {
         }
       }
 
-      // Duration match
       if (duration) {
         const [minStr, maxStr] = (duration as string).split('-');
         const userMin = parseInt(minStr);
@@ -84,16 +106,15 @@ router.get('/recommend/quiz', (req, res: Response): void => {
         }
       }
 
-      // Mood/tag match
       if (mood) {
         const moodTagMap: Record<string, string[]> = {
-          fun: ['Fun', 'Amusant', 'Créatif', 'Rapide'],
-          serious: ['Réflexion', 'Structure', 'Apprentissage'],
-          creative: ['Créatif', 'Métaphore', 'Communication'],
+          fun: ['Fun', 'Amusant', 'Creatif', 'Rapide'],
+          serious: ['Reflexion', 'Structure', 'Apprentissage'],
+          creative: ['Creatif', 'Metaphore', 'Communication'],
         };
         const targetTags = moodTagMap[mood as string] || [];
         const matchCount = activity.tags.filter((t: string) =>
-          targetTags.some((mt) => t.toLowerCase().includes(mt.toLowerCase()))
+          targetTags.some((mt: string) => t.toLowerCase().includes(mt.toLowerCase()))
         ).length;
         score += matchCount * 2;
       }
@@ -116,7 +137,6 @@ router.get('/recommend/quiz', (req, res: Response): void => {
 });
 
 // Recently viewed (protected) - MUST be before /:id
-// Excludes soft-deleted activities
 router.get('/user/recently-viewed', authMiddleware, (req: AuthRequest, res: Response): void => {
   try {
     const activities = db
@@ -139,6 +159,7 @@ router.get('/user/recently-viewed', authMiddleware, (req: AuthRequest, res: Resp
 });
 
 // Create a new activity (auth required)
+// Admin -> is_global=1, regular user -> is_global=0 (user-scoped)
 router.post('/', authMiddleware, (req: AuthRequest, res: Response): void => {
   try {
     const {
@@ -195,9 +216,11 @@ router.post('/', authMiddleware, (req: AuthRequest, res: Response): void => {
     }
 
     const id = uuidv4();
+    const isGlobal = req.isAdmin ? 1 : 0;
+
     db.prepare(`
-      INSERT INTO activities (id, title, type, duration, duration_min, duration_max, team_size, team_size_min, team_size_max, tags, description, instructions, materials, creator_id)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO activities (id, title, type, duration, duration_min, duration_max, team_size, team_size_min, team_size_max, tags, description, instructions, materials, creator_id, is_global)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       id,
       title.trim(),
@@ -212,7 +235,8 @@ router.post('/', authMiddleware, (req: AuthRequest, res: Response): void => {
       description.trim(),
       JSON.stringify(instructions || []),
       JSON.stringify(materials || []),
-      req.userId!
+      req.userId!,
+      isGlobal
     );
 
     const activity = db.prepare('SELECT * FROM activities WHERE id = ?').get(id) as any;
@@ -223,8 +247,45 @@ router.post('/', authMiddleware, (req: AuthRequest, res: Response): void => {
   }
 });
 
+// Clone an activity (auth required) -- creates a user-scoped copy
+router.post('/:id/clone', authMiddleware, (req: AuthRequest, res: Response): void => {
+  try {
+    const source = db.prepare('SELECT * FROM activities WHERE id = ? AND deleted_at IS NULL').get(req.params.id) as any;
+    if (!source) {
+      res.status(404).json({ error: 'Activity not found' });
+      return;
+    }
+
+    const newId = uuidv4();
+    db.prepare(`
+      INSERT INTO activities (id, title, type, duration, duration_min, duration_max, team_size, team_size_min, team_size_max, tags, description, instructions, materials, creator_id, is_global)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+    `).run(
+      newId,
+      source.title + ' (copie)',
+      source.type,
+      source.duration,
+      source.duration_min,
+      source.duration_max,
+      source.team_size,
+      source.team_size_min,
+      source.team_size_max,
+      source.tags,
+      source.description,
+      source.instructions,
+      source.materials,
+      req.userId!
+    );
+
+    const cloned = db.prepare('SELECT * FROM activities WHERE id = ?').get(newId) as any;
+    res.status(201).json(parseActivity(cloned));
+  } catch (error) {
+    console.error('Clone activity error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Get single activity (public) - AFTER specific routes
-// Shows the activity even if soft-deleted (for people who favorited it) but marks it
 router.get('/:id', (req, res: Response): void => {
   try {
     const activity = db.prepare('SELECT * FROM activities WHERE id = ?').get(req.params.id) as any;
@@ -269,7 +330,6 @@ router.put('/:id', authMiddleware, (req: AuthRequest, res: Response): void => {
       materials,
     } = req.body;
 
-    // Validate type if provided
     if (type && type !== 'retro' && type !== 'icebreaker') {
       res.status(400).json({ error: 'type must be "retro" or "icebreaker"' });
       return;
@@ -335,7 +395,6 @@ router.put('/:id', authMiddleware, (req: AuthRequest, res: Response): void => {
 });
 
 // Soft-delete activity (creator only)
-// The activity remains in the DB so favorites references stay valid
 router.delete('/:id', authMiddleware, (req: AuthRequest, res: Response): void => {
   try {
     const activity = db.prepare('SELECT * FROM activities WHERE id = ? AND deleted_at IS NULL').get(req.params.id) as any;
@@ -364,17 +423,14 @@ router.post('/:id/view', authMiddleware, (req: AuthRequest, res: Response): void
     const activityId = req.params.id;
     const userId = req.userId!;
 
-    // Remove old entry if exists
     db.prepare('DELETE FROM recently_viewed WHERE user_id = ? AND activity_id = ?').run(userId, activityId);
 
-    // Insert new entry
     db.prepare('INSERT INTO recently_viewed (id, user_id, activity_id) VALUES (?, ?, ?)').run(
       uuidv4(),
       userId,
       activityId
     );
 
-    // Keep only last 20 entries
     db.prepare(
       `DELETE FROM recently_viewed WHERE user_id = ? AND id NOT IN (
         SELECT id FROM recently_viewed WHERE user_id = ? ORDER BY viewed_at DESC LIMIT 20

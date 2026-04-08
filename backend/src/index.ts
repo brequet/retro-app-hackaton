@@ -6,6 +6,7 @@ import { initializeDatabase } from './db/database';
 import authRoutes from './routes/auth';
 import activityRoutes from './routes/activities';
 import favoriteRoutes from './routes/favorites';
+import articleRoutes from './routes/articles';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -21,6 +22,7 @@ initializeDatabase();
 app.use('/api/auth', authRoutes);
 app.use('/api/activities', activityRoutes);
 app.use('/api/favorites', favoriteRoutes);
+app.use('/api/articles', articleRoutes);
 
 // Health check
 app.get('/api/health', (_, res) => {

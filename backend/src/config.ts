@@ -6,3 +6,13 @@ if (!process.env.JWT_SECRET) {
 }
 
 export const JWT_SECRET: string = process.env.JWT_SECRET;
+
+// Admin emails (comma-separated list in env var)
+export const ADMIN_EMAILS: string[] = (process.env.ADMIN_EMAILS || '')
+  .split(',')
+  .map((e) => e.trim().toLowerCase())
+  .filter(Boolean);
+
+export function isAdminEmail(email: string): boolean {
+  return ADMIN_EMAILS.includes(email.trim().toLowerCase());
+}

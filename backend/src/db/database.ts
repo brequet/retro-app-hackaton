@@ -15,6 +15,7 @@ export function initializeDatabase() {
       email TEXT UNIQUE NOT NULL,
       name TEXT NOT NULL,
       password_hash TEXT NOT NULL,
+      is_admin INTEGER NOT NULL DEFAULT 0,
       created_at TEXT DEFAULT (datetime('now'))
     );
 
@@ -34,6 +35,7 @@ export function initializeDatabase() {
       materials TEXT NOT NULL,
       image_url TEXT,
       creator_id TEXT,
+      is_global INTEGER NOT NULL DEFAULT 0,
       deleted_at TEXT,
       created_at TEXT DEFAULT (datetime('now')),
       FOREIGN KEY (creator_id) REFERENCES users(id) ON DELETE SET NULL
@@ -58,15 +60,26 @@ export function initializeDatabase() {
       FOREIGN KEY (activity_id) REFERENCES activities(id) ON DELETE CASCADE
     );
 
+    CREATE TABLE IF NOT EXISTS articles (
+      id TEXT PRIMARY KEY,
+      title TEXT NOT NULL,
+      content TEXT NOT NULL,
+      author_id TEXT NOT NULL,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now')),
+      FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+
     CREATE INDEX IF NOT EXISTS idx_favorites_user ON favorites(user_id);
     CREATE INDEX IF NOT EXISTS idx_recently_viewed_user ON recently_viewed(user_id, viewed_at DESC);
   `);
 
-  // Migration: add creator_id and deleted_at columns if they don't exist (for existing databases)
+  // Migrations for existing databases
   try {
-    const columns = db.prepare("PRAGMA table_info(activities)").all() as any[];
-    const hasCreatorId = columns.some((c: any) => c.name === 'creator_id');
-    const hasDeletedAt = columns.some((c: any) => c.name === 'deleted_at');
+    const activityCols = db.prepare("PRAGMA table_info(activities)").all() as any[];
+    const hasCreatorId = activityCols.some((c: any) => c.name === 'creator_id');
+    const hasDeletedAt = activityCols.some((c: any) => c.name === 'deleted_at');
+    const hasIsGlobal = activityCols.some((c: any) => c.name === 'is_global');
 
     if (!hasCreatorId) {
       db.exec('ALTER TABLE activities ADD COLUMN creator_id TEXT REFERENCES users(id) ON DELETE SET NULL');
@@ -76,14 +89,29 @@ export function initializeDatabase() {
       db.exec('ALTER TABLE activities ADD COLUMN deleted_at TEXT');
       console.log('Migration: added deleted_at column to activities');
     }
+    if (!hasIsGlobal) {
+      db.exec('ALTER TABLE activities ADD COLUMN is_global INTEGER NOT NULL DEFAULT 0');
+      // Mark existing seed activities (no creator) as global
+      db.exec('UPDATE activities SET is_global = 1 WHERE creator_id IS NULL');
+      console.log('Migration: added is_global column to activities');
+    }
+
+    const userCols = db.prepare("PRAGMA table_info(users)").all() as any[];
+    const hasIsAdmin = userCols.some((c: any) => c.name === 'is_admin');
+    if (!hasIsAdmin) {
+      db.exec('ALTER TABLE users ADD COLUMN is_admin INTEGER NOT NULL DEFAULT 0');
+      console.log('Migration: added is_admin column to users');
+    }
   } catch (e) {
     // Columns already exist or table was just created with them
   }
 
-  // Create indexes that depend on migrated columns (must run after migration)
+  // Create indexes that depend on migrated columns
   db.exec(`
     CREATE INDEX IF NOT EXISTS idx_activities_creator ON activities(creator_id);
     CREATE INDEX IF NOT EXISTS idx_activities_deleted ON activities(deleted_at);
+    CREATE INDEX IF NOT EXISTS idx_activities_global ON activities(is_global);
+    CREATE INDEX IF NOT EXISTS idx_articles_created ON articles(created_at DESC);
   `);
 
   console.log('Database initialized successfully');

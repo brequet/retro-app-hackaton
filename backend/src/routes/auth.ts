@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import db from '../db/database';
-import { JWT_SECRET } from '../config';
+import { JWT_SECRET, isAdminEmail } from '../config';
 
 const router = Router();
 
@@ -29,18 +29,20 @@ router.post('/register', async (req, res: Response): Promise<void> => {
 
     const id = uuidv4();
     const passwordHash = await bcrypt.hash(password, 10);
+    const admin = isAdminEmail(email) ? 1 : 0;
 
-    db.prepare('INSERT INTO users (id, email, name, password_hash) VALUES (?, ?, ?, ?)').run(
+    db.prepare('INSERT INTO users (id, email, name, password_hash, is_admin) VALUES (?, ?, ?, ?, ?)').run(
       id,
       email,
       name,
-      passwordHash
+      passwordHash,
+      admin
     );
 
     const token = jwt.sign({ userId: id }, JWT_SECRET, { expiresIn: '7d' });
 
     res.status(201).json({
-      user: { id, email, name },
+      user: { id, email, name, is_admin: !!admin },
       token,
     });
   } catch (error) {
@@ -70,10 +72,16 @@ router.post('/login', async (req, res: Response): Promise<void> => {
       return;
     }
 
+    // Sync admin status from env var on each login
+    const admin = isAdminEmail(email) ? 1 : 0;
+    if (user.is_admin !== admin) {
+      db.prepare('UPDATE users SET is_admin = ? WHERE id = ?').run(admin, user.id);
+    }
+
     const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '7d' });
 
     res.json({
-      user: { id: user.id, email: user.email, name: user.name },
+      user: { id: user.id, email: user.email, name: user.name, is_admin: !!admin },
       token,
     });
   } catch (error) {
