@@ -122,13 +122,11 @@ export function ActivityCard({ activity, variant = 'compact' }: ActivityCardProp
       style={[
         styles.card,
         isCompact ? { width: cardWidth } : styles.fullCard,
+        { borderLeftColor: typeColor },
       ]}
       onPress={handlePress}
       activeOpacity={0.7}
     >
-      {/* Colored top bar */}
-      <View style={[styles.topBar, { backgroundColor: typeColor }]} />
-
       <View style={styles.content}>
         {/* Type badge */}
         <View style={[styles.badge, { backgroundColor: typeBg }]}>
@@ -274,14 +272,12 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     borderRadius: BorderRadius.lg,
     overflow: 'hidden',
+    borderLeftWidth: 4,
+    borderLeftColor: Colors.primary,
     ...Shadows.sm,
     position: 'relative',
   },
   fullCard: {
-    width: '100%',
-  },
-  topBar: {
-    height: 5,
     width: '100%',
   },
   content: {
