@@ -1,7 +1,8 @@
 import Database from 'better-sqlite3';
 import path from 'path';
 
-const dbPath = path.join(__dirname, '..', '..', 'data.db');
+// Use environment variable for DB path or default to data.db
+const dbPath = process.env.DATABASE_PATH || path.join(__dirname, '..', '..', 'data.db');
 const db: InstanceType<typeof Database> = new Database(dbPath);
 
 // Enable WAL mode for better performance
