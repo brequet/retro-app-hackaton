@@ -67,7 +67,7 @@ router.post('/generate-retro', authMiddleware, async (req: AuthRequest, res: Res
       system: SYSTEM_PROMPT,
       prompt: `Genere une retrospective sur le theme: "${theme.trim()}"`,
       temperature: 0.8,
-      maxTokens: 1024,
+      maxRetries: 2,
     });
 
     if (!content) {
