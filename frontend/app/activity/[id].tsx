@@ -15,7 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { Colors, FontSize, Spacing, BorderRadius, Shadows } from '../../src/constants/theme';
 import { Skeleton } from '../../src/components/Skeleton';
-import { fetchActivity, markAsViewed, addFavorite, removeFavorite, deleteActivity } from '../../src/api/queries';
+import { fetchActivity, markAsViewed, addFavorite, removeFavorite, deleteActivity, cloneActivity } from '../../src/api/queries';
 import { useFavoritesStore } from '../../src/stores/favoritesStore';
 import { useAuthStore } from '../../src/stores/authStore';
 import { useToastStore } from '../../src/stores/toastStore';
@@ -122,6 +122,16 @@ export default function ActivityDetailScreen() {
     }
   };
 
+  const handleClone = async () => {
+    try {
+      const cloned = await cloneActivity(id);
+      useToastStore.getState().show('Activite clonee !', 'success');
+      router.push(`/activity/create?editId=${cloned.id}`);
+    } catch {
+      useToastStore.getState().show('Impossible de cloner', 'error');
+    }
+  };
+
   if (isLoading || !activity) {
     return (
       <SafeAreaView style={styles.safe}>
@@ -147,6 +157,14 @@ export default function ActivityDetailScreen() {
           <Ionicons name="arrow-back" size={24} color={Colors.text} />
         </TouchableOpacity>
         <View style={styles.headerActions}>
+          <TouchableOpacity onPress={() => router.replace('/(tabs)')} style={styles.headerBtn}>
+            <Ionicons name="home-outline" size={20} color={Colors.text} />
+          </TouchableOpacity>
+          {!isDeleted && (
+            <TouchableOpacity onPress={handleClone} style={styles.headerBtn}>
+              <Ionicons name="copy-outline" size={20} color={Colors.primary} />
+            </TouchableOpacity>
+          )}
           {isCreator && !isDeleted && (
             <>
               <TouchableOpacity onPress={handleEdit} style={styles.headerBtn}>

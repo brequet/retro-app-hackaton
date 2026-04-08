@@ -1,6 +1,6 @@
 import { api } from '../api/client';
 import { queryClient } from '../api/queryClient';
-import { Activity, QuizAnswers, CreateActivityInput } from '../types';
+import { Activity, Article, QuizAnswers, CreateActivityInput } from '../types';
 import { useFavoritesStore } from '../stores/favoritesStore';
 import { useToastStore } from '../stores/toastStore';
 
@@ -87,4 +87,37 @@ export async function deleteActivity(id: string): Promise<void> {
   queryClient.invalidateQueries({ queryKey: ['activities'] });
   queryClient.invalidateQueries({ queryKey: ['activity', id] });
   queryClient.invalidateQueries({ queryKey: ['favorites'] });
+}
+
+// Clone activity
+export async function cloneActivity(id: string): Promise<Activity> {
+  const activity = await api.post<Activity>(`/api/activities/${id}/clone`);
+  queryClient.invalidateQueries({ queryKey: ['activities'] });
+  return activity;
+}
+
+// Articles
+export async function fetchArticles(): Promise<Article[]> {
+  return api.get<Article[]>('/api/articles');
+}
+
+export async function fetchArticle(id: string): Promise<Article> {
+  return api.get<Article>(`/api/articles/${id}`);
+}
+
+export async function createArticle(data: { title: string; content: string }): Promise<Article> {
+  const article = await api.post<Article>('/api/articles', data);
+  queryClient.invalidateQueries({ queryKey: ['articles'] });
+  return article;
+}
+
+export async function updateArticle(id: string, data: { title?: string; content?: string }): Promise<Article> {
+  const article = await api.put<Article>(`/api/articles/${id}`, data);
+  queryClient.invalidateQueries({ queryKey: ['articles'] });
+  return article;
+}
+
+export async function deleteArticle(id: string): Promise<void> {
+  await api.delete(`/api/articles/${id}`);
+  queryClient.invalidateQueries({ queryKey: ['articles'] });
 }

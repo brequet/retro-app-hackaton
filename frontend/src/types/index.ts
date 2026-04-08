@@ -2,6 +2,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
+  is_admin?: boolean;
 }
 
 export interface Activity {
@@ -20,6 +21,7 @@ export interface Activity {
   materials: string[];
   image_url?: string;
   creator_id?: string;
+  is_global?: boolean;
   deleted_at?: string | null;
   created_at: string;
 }
@@ -37,6 +39,16 @@ export interface CreateActivityInput {
   description: string;
   instructions: string[];
   materials: string[];
+}
+
+export interface Article {
+  id: string;
+  title: string;
+  content: string;
+  author_id: string;
+  author_name: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface AuthResponse {

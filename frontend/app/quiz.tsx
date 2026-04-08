@@ -253,7 +253,9 @@ export default function QuizScreen() {
             <Ionicons name="arrow-back" size={24} color={Colors.text} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>{step === 'result' ? 'Resultat' : 'Trouve ton booster'}</Text>
-          <View style={styles.backBtn} />
+          <TouchableOpacity onPress={() => router.replace('/(tabs)')} style={styles.backBtn}>
+            <Ionicons name="home-outline" size={22} color={Colors.text} />
+          </TouchableOpacity>
         </View>
 
         {step !== 'result' && <ProgressBar step={currentStep + 1} />}

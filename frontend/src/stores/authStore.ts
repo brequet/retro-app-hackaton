@@ -9,6 +9,7 @@ interface AuthState {
   token: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  isAdmin: boolean;
 
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, name: string, password: string) => Promise<void>;
@@ -48,6 +49,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   token: null,
   isLoading: true,
   isAuthenticated: false,
+  isAdmin: false,
 
   login: async (email: string, password: string) => {
     const data = await api.post<{ user: User; token: string }>(
@@ -57,7 +59,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     );
     await setItem(TOKEN_KEY, data.token);
     await setItem(USER_KEY, JSON.stringify(data.user));
-    set({ user: data.user, token: data.token, isAuthenticated: true });
+    set({ user: data.user, token: data.token, isAuthenticated: true, isAdmin: !!data.user.is_admin });
   },
 
   register: async (email: string, name: string, password: string) => {
@@ -68,13 +70,13 @@ export const useAuthStore = create<AuthState>((set) => ({
     );
     await setItem(TOKEN_KEY, data.token);
     await setItem(USER_KEY, JSON.stringify(data.user));
-    set({ user: data.user, token: data.token, isAuthenticated: true });
+    set({ user: data.user, token: data.token, isAuthenticated: true, isAdmin: !!data.user.is_admin });
   },
 
   logout: async () => {
     await removeItem(TOKEN_KEY);
     await removeItem(USER_KEY);
-    set({ user: null, token: null, isAuthenticated: false });
+    set({ user: null, token: null, isAuthenticated: false, isAdmin: false });
   },
 
   loadToken: async () => {
@@ -83,7 +85,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       const userStr = await getItem(USER_KEY);
       if (token && userStr) {
         const user = JSON.parse(userStr);
-        set({ token, user, isAuthenticated: true, isLoading: false });
+        set({ token, user, isAuthenticated: true, isAdmin: !!user.is_admin, isLoading: false });
       } else {
         set({ isLoading: false });
       }
