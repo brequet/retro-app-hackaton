@@ -52,7 +52,8 @@ export function ActivityCard({ activity, variant = 'compact' }: ActivityCardProp
 
   const isCompact = variant === 'compact';
   const isList = variant === 'list';
-  const cardWidth = isCompact ? Math.min(170, (width - 56) / 2) : undefined;
+  // Responsive card width: desktop gets wider cards (300px max), mobile adapts
+  const cardWidth = isCompact ? Math.min(300, Math.max(240, width * 0.7)) : undefined;
 
   if (isList) {
     return (
@@ -121,23 +122,25 @@ export function ActivityCard({ activity, variant = 'compact' }: ActivityCardProp
     <TouchableOpacity
       style={[
         styles.card,
-        isCompact ? { width: cardWidth } : styles.fullCard,
+        isCompact ? { width: cardWidth, height: 140 } : styles.fullCard,
         { borderLeftColor: typeColor },
       ]}
       onPress={handlePress}
       activeOpacity={0.7}
     >
       <View style={styles.content}>
-        {/* Type badge */}
-        <View style={[styles.badge, { backgroundColor: typeBg }]}>
-          <Text style={[styles.badgeText, { color: typeColor }]}>
-            {isRetro ? 'Retro' : 'Icebreaker'}
+        <View>
+          {/* Type badge */}
+          <View style={[styles.badge, { backgroundColor: typeBg }]}>
+            <Text style={[styles.badgeText, { color: typeColor }]}>
+              {isRetro ? 'Retro' : 'Icebreaker'}
+            </Text>
+          </View>
+
+          <Text style={styles.title} numberOfLines={isCompact ? 1 : 1}>
+            {activity.title}
           </Text>
         </View>
-
-        <Text style={styles.title} numberOfLines={isCompact ? 2 : 1}>
-          {activity.title}
-        </Text>
 
         {!isCompact && (
           <Text style={styles.description} numberOfLines={2}>
@@ -282,6 +285,8 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: Spacing.md,
+    flex: 1,
+    justifyContent: 'space-between',
   },
   badge: {
     paddingHorizontal: Spacing.sm,
