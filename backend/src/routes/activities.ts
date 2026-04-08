@@ -3,7 +3,7 @@ import db from '../db/database';
 import { AuthRequest, authMiddleware, optionalAuthMiddleware } from '../middleware/auth';
 import { v4 as uuidv4 } from 'uuid';
 
-const router = Router();
+const router: Router = Router();
 
 // Helper: parse JSON fields from a raw activity row
 function parseActivity(a: any) {

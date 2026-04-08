@@ -1,6 +1,6 @@
 import './config'; // Load and validate env vars first
 
-import express from 'express';
+import express, { Express } from 'express';
 import cors from 'cors';
 import { initializeDatabase } from './db/database';
 import authRoutes from './routes/auth';
@@ -8,7 +8,7 @@ import activityRoutes from './routes/activities';
 import favoriteRoutes from './routes/favorites';
 import articleRoutes from './routes/articles';
 
-const app = express();
+const app: Express = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware

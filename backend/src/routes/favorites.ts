@@ -3,7 +3,7 @@ import db from '../db/database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { v4 as uuidv4 } from 'uuid';
 
-const router = Router();
+const router: Router = Router();
 
 // All routes require auth
 router.use(authMiddleware);

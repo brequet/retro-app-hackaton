@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import db from '../db/database';
 import { JWT_SECRET, isAdminEmail } from '../config';
 
-const router = Router();
+const router: Router = Router();
 
 router.post('/register', async (req, res: Response): Promise<void> => {
   try {

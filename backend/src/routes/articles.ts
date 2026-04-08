@@ -3,7 +3,7 @@ import db from '../db/database';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
 import { v4 as uuidv4 } from 'uuid';
 
-const router = Router();
+const router: Router = Router();
 
 // Get all articles (public)
 router.get('/', (_req, res: Response): void => {
