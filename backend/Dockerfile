@@ -7,7 +7,7 @@ WORKDIR /app
 
 # ---- Dependencies ----
 FROM base AS deps
-COPY package.json pnpm-lock.yaml ./
+COPY package.json ./
 RUN pnpm install --frozen-lockfile
 
 # ---- Builder ----
@@ -24,7 +24,7 @@ ENV NODE_ENV=production
 RUN apk add --no-cache sqlite
 
 # Copy package files to install only production dependencies
-COPY package.json pnpm-lock.yaml ./
+COPY package.json ./
 RUN pnpm install --prod --frozen-lockfile
 
 # Copy the built application from the builder stage
