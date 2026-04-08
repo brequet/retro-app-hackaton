@@ -40,7 +40,7 @@ RUN pnpm install --prod --frozen-lockfile --filter backend
 # ---- Production ----
 FROM base AS production
 ENV NODE_ENV=production
-WORKDIR /app
+WORKDIR /workspace/backend
 
 # Install sqlite3 for better-sqlite3 native module
 RUN apk add --no-cache sqlite
@@ -48,11 +48,14 @@ RUN apk add --no-cache sqlite
 # Copy the built application from the builder stage
 COPY --from=builder /workspace/backend/dist ./dist
 
-# Copy backend production node_modules from prod-deps stage
+# Copy workspace root node_modules (contains .pnpm store)
+COPY --from=prod-deps /workspace/node_modules /workspace/node_modules
+
+# Copy backend node_modules (contains symlinks to .pnpm store)
 COPY --from=prod-deps /workspace/backend/node_modules ./node_modules
 
 # Create data directory for SQLite database
-RUN mkdir -p /app/data
+RUN mkdir -p ./data
 
 EXPOSE 3000
 

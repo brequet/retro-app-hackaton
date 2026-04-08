@@ -11,13 +11,13 @@ services:
       - NODE_ENV=production
       - PORT=3000
       # Database path (persistent volume)
-      - DATABASE_PATH=/app/data/retrobreaker.db
+      - DATABASE_PATH=/workspace/backend/data/retrobreaker.db
       # Add your secrets via Dokploy environment variables:
       # - JWT_SECRET=${JWT_SECRET}
       # - GROQ_API_KEY=${GROQ_API_KEY}
     volumes:
       # Persist SQLite database
-      - retrobreaker-data:/app/data
+      - retrobreaker-data:/workspace/backend/data
     expose:
       - "3000"
     healthcheck:
