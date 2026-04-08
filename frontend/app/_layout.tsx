@@ -59,6 +59,20 @@ function RootLayoutInner() {
             presentation: 'card',
           }}
         />
+        <Stack.Screen
+          name="articles/index"
+          options={{
+            headerShown: false,
+            presentation: 'card',
+          }}
+        />
+        <Stack.Screen
+          name="articles/[id]"
+          options={{
+            headerShown: false,
+            presentation: 'card',
+          }}
+        />
         <Stack.Screen name="+not-found" options={{ headerShown: false }} />
       </Stack>
       <Toast />

@@ -19,7 +19,7 @@ import { ActivityCardSkeleton } from '../../src/components/Skeleton';
 import { Button } from '../../src/components/Button';
 import { fetchActivities, fetchRecentlyViewed, fetchArticles } from '../../src/api/queries';
 import { useAuthStore } from '../../src/stores/authStore';
-import { Activity, Article } from '../../src/types';
+import { Activity } from '../../src/types';
 
 function SectionHeader({ icon, title }: { icon: string; title: string }) {
   return (
@@ -188,14 +188,29 @@ export default function HomeScreen() {
             <SectionHeader icon="newspaper-outline" title="Derniers articles" />
             <View style={styles.articlesContainer}>
               {recentArticles.map((article) => (
-                <View key={article.id} style={styles.articleCard}>
+                <TouchableOpacity
+                  key={article.id}
+                  style={styles.articleCard}
+                  onPress={() => router.push(`/articles/${article.id}`)}
+                  activeOpacity={0.7}
+                >
                   <Text style={styles.articleTitle} numberOfLines={2}>{article.title}</Text>
                   <Text style={styles.articleContent} numberOfLines={3}>{article.content}</Text>
                   <Text style={styles.articleDate}>
                     {new Date(article.created_at).toLocaleDateString('fr-FR')}
                   </Text>
-                </View>
+                </TouchableOpacity>
               ))}
+              {(articles?.length || 0) > 3 && (
+                <TouchableOpacity
+                  style={styles.seeMoreBtn}
+                  onPress={() => router.push('/articles')}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.seeMoreText}>Voir tous les articles</Text>
+                  <Ionicons name="chevron-forward" size={18} color={Colors.primary} />
+                </TouchableOpacity>
+              )}
             </View>
           </>
         )}
@@ -370,5 +385,18 @@ const styles = StyleSheet.create({
   articleDate: {
     fontSize: FontSize.xs,
     color: Colors.textTertiary,
+  },
+  seeMoreBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.xs,
+    paddingVertical: Spacing.md,
+    marginTop: Spacing.xs,
+  },
+  seeMoreText: {
+    fontSize: FontSize.sm,
+    fontWeight: '600',
+    color: Colors.primary,
   },
 });
