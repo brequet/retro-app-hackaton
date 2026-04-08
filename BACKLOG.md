@@ -1,155 +1,100 @@
-# Retro & Icebreaker App - Full Backlog
+# RetroBreaker - Backlog (Iteration 4)
 
-## Project Overview
-Mobile-first (responsive) app for agile teams to find the perfect retrospective or icebreaker activity through a guided recommendation quiz.
-
-**Tech Stack:**
-- Frontend: React Native + TypeScript + Expo Router
-- Styling: Plain StyleSheet (NativeWind dropped due to peer dep conflicts)
-- State: Zustand (local) + TanStack Query (server)
-- Backend: TypeScript + Express + SQLite (better-sqlite3)
-- Auth: JWT-based simple register/login
-
----
-
-## Phase 0: Project Setup [HIGH]
-- [x] Initialize Expo project with TypeScript
-- [x] Set up Expo Router (file-based routing)
-- [x] Install & configure NativeWind
-- [x] Set up backend project (Express + TypeScript)
-- [x] Configure SQLite with better-sqlite3
-- [x] Set up monorepo or project structure
-
-## Phase 1: Backend - Core API [HIGH]
-- [x] Database schema design (users, activities, favorites, recently_viewed)
-- [x] User model + migration
-- [x] Activity model + migration
-- [x] Favorites model + migration
-- [x] RecentlyViewed model + migration
-- [x] Auth endpoints: POST /api/auth/register
-- [x] Auth endpoints: POST /api/auth/login
-- [x] JWT middleware for protected routes
-- [x] Activity endpoints: GET /api/activities (list all)
-- [x] Activity endpoints: GET /api/activities/:id (detail)
-- [x] Activity endpoints: GET /api/activities/recommend (with query params)
-- [x] Favorites endpoints: GET /api/favorites
-- [x] Favorites endpoints: POST /api/favorites/:activityId
-- [x] Favorites endpoints: DELETE /api/favorites/:activityId
-- [x] Recently viewed: POST /api/activities/:id/view
-- [x] Recently viewed: GET /api/activities/recently-viewed
-- [x] Seed script with 12 activities (6 retros + 6 icebreakers)
-
-## Phase 2: Frontend Auth [HIGH]
-- [x] Auth store (Zustand) - token, user, login/logout actions
-- [x] API client setup (fetch/axios with auth headers)
-- [x] Login screen UI (email + password)
-- [x] Register screen UI (name + email + password)
-- [x] Auth flow: redirect to login if no token
-- [x] Protected route layout wrapper
-
-## Phase 3: Home Screen [HIGH]
-- [x] Home screen layout
-- [x] "Accueil" header with home icon
-- [x] "Trouve ton booster !" CTA button
-- [x] "Ajoutés récemment" section with horizontal card grid
-- [x] "Consultés récemment" section with horizontal card grid
-- [x] "Mes favoris" section (conditional, shows if has favorites)
-- [x] Activity card component (thumbnail, title, tags)
-- [x] Navigation to activity detail on card tap
-- [x] Navigation to search on CTA tap
-
-## Phase 4: Search / Quiz Flow [HIGH]
-- [x] Search screen with multi-step state machine
-- [x] Step 1: Type selector (Retros / Icebreakers tabs)
-- [x] Step 2: Team size selector (3-5, 6-10, 11+)
-- [x] Step 3: Duration selector (10-15, 20-30, 30-45 min)
-- [x] Step 4: Mood selector (Fun, Serious, Creative)
-- [x] Progress bar component (X/5)
-- [x] Step 5: Result display with recommended activity
-- [x] "Voir les détails" button -> activity detail
-- [x] "Recommencer" button -> reset quiz
-- [x] Recommendation algorithm integration
-- [x] Animations/transitions between steps
-
-## Phase 5: Activity Detail Screen [HIGH]
-- [x] Back navigation arrow
-- [x] Favorite toggle (heart icon) in header
-- [x] Activity type badge (Retrospective / Icebreaker)
-- [x] Activity title
-- [x] Meta info: duration (clock icon) + team size (users icon)
-- [x] Tags display (horizontal pills)
-- [x] Description section
-- [x] Instructions section (numbered steps)
-- [x] Materials section (bulleted list)
-- [x] Mark as recently viewed on open
-
-## Phase 6: Favorites [HIGH]
-- [x] Favorites screen layout
-- [x] Favorites list (vertical, full cards)
-- [x] Empty state (heart icon + message)
-- [x] Toggle favorite from any activity card
-- [x] Sync favorites with backend
-- [x] Optimistic updates
-
-## Phase 7: Navigation [MEDIUM]
-- [x] Bottom tab bar component (Home / Search / Favorites)
-- [x] Active tab indicator (blue color + underline)
-- [x] Tab icons (home, search/magnifying glass, heart)
-- [x] Expo Router tab layout configuration
-- [x] Smooth tab transitions
-
-## Phase 8: Data & Algorithm [HIGH]
-- [x] Seed all 12 activities with full data
-- [x] Recommendation scoring algorithm:
-  - Filter by type (retro/icebreaker)
-  - +3 points for team size match
-  - +2 points for duration match
-  - +2 points for mood/tag match
-- [x] Map mood to tags:
-  - "fun" -> Fun, Amusant, Créatif
-  - "serious" -> Réflexion, Structure, Apprentissage
-  - "creative" -> Créatif, Métaphore
-
-## Phase 9: Polish & Responsive [MEDIUM]
-- [x] Responsive layout (mobile vs tablet vs desktop)
-- [x] Loading states / skeletons
-- [x] Error handling & toast notifications
-- [x] Smooth animations (step transitions, favorite toggle)
-- [x] Color scheme consistency (#074ee8 primary, #eeeeee bg)
-- [ ] Typography consistency (Inter font)
-- [ ] Dark mode consideration (stretch goal)
-- [x] Web export testing
+## Completed (Iterations 1-3)
+- [x] Full backend API (auth, activities CRUD, favorites, recently viewed, quiz recommend)
+- [x] Frontend auth (login, register, JWT, protected routes)
+- [x] Home screen (CTA, recent, viewed, favorites sections)
+- [x] Quiz flow ("Trouve ton booster" 4-step quiz + result)
+- [x] Activity detail screen (full info, fav toggle, edit/delete for creator)
+- [x] Activity create/edit form
+- [x] Favorites (optimistic updates, sync)
+- [x] Tab navigation (Accueil, Explorer, Favoris)
+- [x] Responsive layout, skeletons, toasts, animations
+- [x] Seed data (12 activities)
+- [x] Soft-delete for activities
 
 ---
 
-## Activity Data (12 total)
+## Iteration 4 - Current Work
 
-### Retros (6):
-1. Starfish - 30-45 min - 3-10 people - Tags: Réflexion, Amélioration, Équipe
-2. Mad Sad Glad - 20-30 min - 3-15 people - Tags: Émotions, Sprint, Équipe
-3. Voilier (Sailboat) - 30-40 min - 5-12 people - Tags: Métaphore, Obstacles, Objectifs
-4. 4Ls - 25-35 min - 3-12 people - Tags: Apprentissage, Structure, Simple
-5. Timeline - 40-60 min - 4-12 people - Tags: Chronologie, Détaillé, Sprint
-6. Speedboat - 30-45 min - 5-15 people - Tags: Vitesse, Obstacles, Objectifs
+### Phase 1: pnpm Monorepo + README [HIGH]
+- [ ] Set up pnpm workspace (pnpm-workspace.yaml at root)
+- [ ] Add root package.json with workspace scripts
+- [ ] Remove npm lockfiles, ensure pnpm-lock in each package
+- [ ] Rewrite README for pnpm usage
 
-### Icebreakers (6):
-1. Two Truths and a Lie - 10-15 min - 4-20 people - Tags: Connaissance, Fun, Rapide
-2. Dessin à l'aveugle - 15-20 min - 6-16 people - Tags: Communication, Créatif, Amusant
-3. Si j'étais... - 10-15 min - 3-15 people - Tags: Créatif, Métaphore, Personnel
-4. Speed Networking - 20-30 min - 8-30 people - Tags: Réseau, Énergie, Connexion
-5. Questions insolites - 15-20 min - 3-20 people - Tags: Amusant, Créatif, Réflexion
-6. Bingo Humain - 15-25 min - 10-50 people - Tags: Interaction, Mouvement, Découverte
+### Phase 2: DB Schema Changes [HIGH]
+- [ ] Add `is_global` column to `activities` (BOOLEAN, default 0)
+- [ ] Add `is_admin` column to `users` (BOOLEAN, default 0)
+- [ ] Add `ADMIN_EMAILS` env var to backend config
+- [ ] Create `articles` table (id, title, content, author_id, created_at, updated_at)
+- [ ] Migration logic for existing DBs
+
+### Phase 3: Backend - Admin + Activity Visibility [HIGH]
+- [ ] Admin detection: on login/register, check if email is in ADMIN_EMAILS env var, set is_admin
+- [ ] GET /api/activities: return global activities (is_global=1 OR creator_id IS NULL) + user's own
+- [ ] POST /api/activities: if admin -> is_global=1, else -> is_global=0 (user-scoped)
+- [ ] Quiz recommend: same visibility rules
+- [ ] GET /api/auth/me or return is_admin in login/register response
+
+### Phase 4: Backend - Clone Endpoint [HIGH]
+- [ ] POST /api/activities/:id/clone -- copies activity, sets creator_id to current user, is_global=0
+- [ ] Return new cloned activity
+
+### Phase 5: Backend - Articles CRUD [MEDIUM]
+- [ ] POST /api/articles (admin only) -- create article
+- [ ] GET /api/articles -- list articles (all users)
+- [ ] PUT /api/articles/:id (admin only) -- update
+- [ ] DELETE /api/articles/:id (admin only) -- delete
+
+### Phase 6: Frontend - Quiz Navigation Fix [HIGH]
+- [ ] Add "home" icon button in quiz header (visible at all steps)
+- [ ] One-tap navigation to home from quiz at any step
+- [ ] Also add home button on activity detail when coming from quiz
+
+### Phase 7: Frontend - Activity Visibility + User Scoping [HIGH]
+- [ ] Update activity list queries to pass auth token (so backend can scope)
+- [ ] Show "Mes activites" section or badge for user-created activities
+- [ ] Admin badge/indicator for admin users
+
+### Phase 8: Frontend - Clone Feature [HIGH]
+- [ ] "Clone" button on activity detail page
+- [ ] Clone creates a copy, navigates to edit form pre-filled
+- [ ] Toast confirmation
+
+### Phase 9: Frontend - Admin Articles [MEDIUM]
+- [ ] Admin: article creation form (title + rich text content)
+- [ ] Admin: article list management (edit, delete)
+- [ ] Home page: "Derniers articles" section showing recent articles
+- [ ] Article detail view
+
+### Phase 10: UX/UI Overhaul [HIGH]
+- [ ] Warmer color palette (inspired by Figma: teal/turquoise accent, warm yellow, soft backgrounds)
+- [ ] Rounded, softer card designs with larger touch targets
+- [ ] Better mobile spacing -- less empty space, more content density
+- [ ] Welcoming home screen header with gradient/illustration
+- [ ] Improved tab bar (custom styling, icons)
+- [ ] Better activity cards -- more visual, color-coded
+- [ ] Quiz flow polish -- bigger buttons, better progress indicator
+- [ ] Typography improvements (consistent sizing, weights)
+- [ ] Create reusable UI components (Badge, SectionHeader, GradientHeader)
+- [ ] Login/Register screens visual upgrade
+- [ ] Activity detail page redesign (hero section, better layout)
+- [ ] Empty states improvements (illustrations or friendly messages)
+- [ ] Responsive polish for desktop (max-width containers, grid layouts)
+
+### Phase 11: Testing + Cleanup [HIGH]
+- [ ] Test all flows end-to-end (auth, quiz, create, clone, favorites, articles)
+- [ ] Verify responsive on mobile and desktop widths
+- [ ] Clean up unused code
+- [ ] Final commits
 
 ---
 
-## Design Tokens
-- Primary: #074ee8
-- Primary hover: #0640c7
-- Background: #f5f5f5
-- Surface: #ffffff
-- Text primary: #111111
-- Text secondary: #666666
-- Border: #e0e0e0
-- Inactive: #aaaaaa
-- Light blue: #f0f7ff
-- Font: Inter / system
+## Design Direction (from Figma)
+- Teal/turquoise primary (#0ABAB5 or similar) -- warmer than current cold blue
+- Warm yellow accent (#F5C542) for CTAs and highlights
+- Soft cream/warm white backgrounds instead of cold gray
+- Rounded cards with subtle shadows
+- Friendly illustrations/icons
+- "Derniers articles" section on home (from Figma design)

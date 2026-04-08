@@ -5,85 +5,94 @@ Application mobile-first pour aider les equipes agiles a trouver la retrospectiv
 ## Pre-requis
 
 - **Node.js** >= 18
-- **npm** >= 9 (ou **pnpm** >= 8)
-- **Windows** : Visual Studio Build Tools (pour compiler `better-sqlite3` sur Node >= 24)
+- **pnpm** >= 8 (`npm install -g pnpm`)
+- **Windows** : Visual Studio Build Tools (pour compiler `better-sqlite3`)
 
 ## Installation
 
-```bash
-# Backend
-cd backend
-npm install
-# ou : pnpm install
+Le projet utilise un **monorepo pnpm** avec deux packages : `backend` et `frontend`.
 
-# Frontend
-cd ../frontend
-npm install
-# ou : pnpm install
+```bash
+# Depuis la racine du projet -- installe les deux packages
+pnpm install
 ```
 
-### Probleme avec better-sqlite3 sur Node >= 24
-
-Si vous obtenez une erreur `Could not locate the bindings file` avec `node-v137`, il faut recompiler le module natif :
+## Configuration
 
 ```bash
-cd backend
-npx node-gyp rebuild --directory=node_modules/better-sqlite3
-# ou avec pnpm :
-npx node-gyp rebuild --directory=node_modules/.pnpm/better-sqlite3@12.8.0/node_modules/better-sqlite3
+# Copier le fichier d'exemple
+cp backend/.env.example backend/.env
 ```
 
-Necessite Python 3 et Visual Studio Build Tools (C++ desktop workload).
+Variables d'environnement (`backend/.env`) :
 
-## Lancer le backend
+| Variable | Description | Defaut |
+|----------|-------------|--------|
+| `JWT_SECRET` | Secret pour signer les tokens JWT | `a-secret` |
+| `PORT` | Port du serveur backend | `3000` |
+| `ADMIN_EMAILS` | Emails admin separes par des virgules | (vide) |
+
+## Lancer le projet
+
+### Backend
 
 ```bash
-cd backend
-
-# Seeder la base de donnees (12 activites)
-npm run seed
+# Seeder la base de donnees (12 activites par defaut)
+pnpm seed
 
 # Demarrer le serveur (port 3000)
-npm run dev
+pnpm dev:backend
 ```
 
-Le backend tourne sur `http://localhost:3000`. Verifier avec :
+Verifier : `curl http://localhost:3000/api/health`
 
-```bash
-curl http://localhost:3000/api/health
-```
-
-## Lancer le frontend
+### Frontend
 
 Dans un **second terminal** :
 
 ```bash
-cd frontend
-
-# Lancer Expo (web)
-npx expo start --web
+# Lancer Expo (web, port 8081)
+pnpm dev:frontend
 ```
-
-Cela ouvre l'app dans le navigateur sur `http://localhost:8081`.
 
 ### Autres plateformes
 
 ```bash
 # iOS (necessite Xcode / macOS)
-npx expo start --ios
+pnpm --filter frontend ios
 
 # Android (necessite Android Studio / emulateur)
-npx expo start --android
+pnpm --filter frontend android
 ```
+
+## Probleme avec better-sqlite3
+
+Si vous obtenez une erreur `Could not locate the bindings file`, recompiler :
+
+```bash
+pnpm --filter backend exec npx node-gyp rebuild --directory=node_modules/better-sqlite3
+```
+
+Necessite Python 3 et Visual Studio Build Tools (C++ desktop workload).
 
 ## Tester l'application
 
-1. Lancer le backend (`npm run dev` dans `backend/`)
-2. Lancer le frontend (`npx expo start --web` dans `frontend/`)
+1. Lancer le backend (`pnpm dev:backend`)
+2. Lancer le frontend (`pnpm dev:frontend`)
 3. Creer un compte sur l'ecran d'inscription
-4. Explorer l'accueil, le quiz de recherche, les favoris et les details d'activite
+4. Explorer l'accueil, le quiz, les favoris et les activites
 
-## Endpoints API (resume)
+## Structure du projet
+
+```
+retrobreaker/
+  backend/          # Express + SQLite API
+  frontend/         # React Native + Expo Router
+  pnpm-workspace.yaml
+  package.json      # Scripts monorepo
+```
+
+## Endpoints API
 
 | Methode | Route | Description |
 |---------|-------|-------------|
@@ -92,6 +101,10 @@ npx expo start --android
 | POST | `/api/auth/login` | Connexion |
 | GET | `/api/activities` | Lister les activites |
 | GET | `/api/activities/:id` | Detail d'une activite |
+| POST | `/api/activities` | Creer une activite |
+| PUT | `/api/activities/:id` | Modifier une activite |
+| DELETE | `/api/activities/:id` | Supprimer (soft-delete) |
+| POST | `/api/activities/:id/clone` | Cloner une activite |
 | GET | `/api/activities/recommend/quiz` | Recommandation via quiz |
 | POST | `/api/activities/:id/view` | Marquer comme consulte |
 | GET | `/api/activities/user/recently-viewed` | Activites consultees |
@@ -99,3 +112,7 @@ npx expo start --android
 | GET | `/api/favorites/ids` | IDs des favoris |
 | POST | `/api/favorites/:id` | Ajouter un favori |
 | DELETE | `/api/favorites/:id` | Retirer un favori |
+| GET | `/api/articles` | Lister les articles |
+| POST | `/api/articles` | Creer un article (admin) |
+| PUT | `/api/articles/:id` | Modifier un article (admin) |
+| DELETE | `/api/articles/:id` | Supprimer un article (admin) |
