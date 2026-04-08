@@ -17,9 +17,9 @@ import { Colors, FontSize, Spacing, BorderRadius, Shadows } from '../../src/cons
 import { ActivityCard } from '../../src/components/ActivityCard';
 import { ActivityCardSkeleton } from '../../src/components/Skeleton';
 import { Button } from '../../src/components/Button';
-import { fetchActivities, fetchRecentlyViewed, fetchFavorites } from '../../src/api/queries';
+import { fetchActivities, fetchRecentlyViewed, fetchFavorites, fetchArticles } from '../../src/api/queries';
 import { useAuthStore } from '../../src/stores/authStore';
-import { Activity } from '../../src/types';
+import { Activity, Article } from '../../src/types';
 
 function SectionHeader({ icon, title }: { icon: string; title: string }) {
   return (
@@ -65,6 +65,7 @@ function HorizontalActivityList({ activities, isLoading }: { activities: Activit
 export default function HomeScreen() {
   const { width } = useWindowDimensions();
   const user = useAuthStore((s) => s.user);
+  const isAdmin = useAuthStore((s) => s.isAdmin);
   const logout = useAuthStore((s) => s.logout);
 
   const {
@@ -92,17 +93,26 @@ export default function HomeScreen() {
     queryFn: fetchFavorites,
   });
 
+  const {
+    data: articles,
+    refetch: refetchArticles,
+  } = useQuery({
+    queryKey: ['articles'],
+    queryFn: fetchArticles,
+  });
+
   const [refreshing, setRefreshing] = React.useState(false);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await Promise.all([refetchActivities(), refetchRecent(), refetchFavorites()]);
+    await Promise.all([refetchActivities(), refetchRecent(), refetchFavorites(), refetchArticles()]);
     setRefreshing(false);
-  }, [refetchActivities, refetchRecent, refetchFavorites]);
+  }, [refetchActivities, refetchRecent, refetchFavorites, refetchArticles]);
 
   const recentActivities = activities?.slice(0, 6) || [];
   const viewedActivities = recentlyViewed?.slice(0, 6) || [];
   const favoriteActivities = favorites?.slice(0, 6) || [];
+  const recentArticles = articles?.slice(0, 3) || [];
 
   const handleLogout = async () => {
     await logout();
@@ -140,6 +150,17 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
+        {/* Admin link */}
+        {isAdmin && (
+          <TouchableOpacity
+            style={styles.adminLink}
+            onPress={() => router.push('/admin-articles')}
+          >
+            <Ionicons name="newspaper-outline" size={18} color={Colors.white} />
+            <Text style={styles.adminLinkText}>Gerer les articles</Text>
+          </TouchableOpacity>
+        )}
+
         {/* CTA Button */}
         <TouchableOpacity
           style={styles.ctaCard}
@@ -175,6 +196,24 @@ export default function HomeScreen() {
           <>
             <SectionHeader icon="heart-outline" title="Mes favoris" />
             <HorizontalActivityList activities={favoriteActivities} />
+          </>
+        )}
+
+        {/* Articles */}
+        {recentArticles.length > 0 && (
+          <>
+            <SectionHeader icon="newspaper-outline" title="Derniers articles" />
+            <View style={styles.articlesContainer}>
+              {recentArticles.map((article) => (
+                <View key={article.id} style={styles.articleCard}>
+                  <Text style={styles.articleTitle} numberOfLines={2}>{article.title}</Text>
+                  <Text style={styles.articleContent} numberOfLines={3}>{article.content}</Text>
+                  <Text style={styles.articleDate}>
+                    {new Date(article.created_at).toLocaleDateString('fr-FR')}
+                  </Text>
+                </View>
+              ))}
+            </View>
           </>
         )}
 
@@ -303,5 +342,48 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     ...Shadows.lg,
     zIndex: 10,
+  },
+  adminLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    alignSelf: 'flex-end',
+    marginRight: Spacing.xl,
+    marginBottom: Spacing.sm,
+    backgroundColor: Colors.primary,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    borderRadius: BorderRadius.full,
+  },
+  adminLinkText: {
+    fontSize: FontSize.xs,
+    fontWeight: '600',
+    color: Colors.white,
+  },
+  articlesContainer: {
+    paddingHorizontal: Spacing.xl,
+    gap: Spacing.sm,
+  },
+  articleCard: {
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    ...Shadows.sm,
+  },
+  articleTitle: {
+    fontSize: FontSize.md,
+    fontWeight: '700',
+    color: Colors.text,
+    marginBottom: Spacing.xs,
+  },
+  articleContent: {
+    fontSize: FontSize.sm,
+    color: Colors.textSecondary,
+    lineHeight: 20,
+    marginBottom: Spacing.sm,
+  },
+  articleDate: {
+    fontSize: FontSize.xs,
+    color: Colors.textTertiary,
   },
 });
