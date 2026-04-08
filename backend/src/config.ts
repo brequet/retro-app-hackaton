@@ -1,5 +1,9 @@
 import dotenv from 'dotenv';
-dotenv.config();
+
+// Only load .env file in development (Docker/production sets env vars directly)
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config();
+}
 
 if (!process.env.JWT_SECRET) {
   throw new Error('JWT_SECRET environment variable is required. Set it in your .env file.');
