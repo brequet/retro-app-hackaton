@@ -122,3 +122,16 @@ export async function deleteArticle(id: string): Promise<void> {
   await api.delete(`/api/articles/${id}`);
   queryClient.invalidateQueries({ queryKey: ['articles'] });
 }
+
+// AI Generation
+export interface GeneratedRetro {
+  title: string;
+  description: string;
+  instructions: string[];
+  materials: string[];
+  tags: string[];
+}
+
+export async function generateRetroFromTheme(theme: string): Promise<GeneratedRetro> {
+  return api.post<GeneratedRetro>('/api/ai/generate-retro', { theme });
+}

@@ -7,6 +7,7 @@ import authRoutes from './routes/auth';
 import activityRoutes from './routes/activities';
 import favoriteRoutes from './routes/favorites';
 import articleRoutes from './routes/articles';
+import aiRoutes from './routes/ai';
 
 const app: Express = express();
 const PORT = process.env.PORT || 3000;
@@ -23,6 +24,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/activities', activityRoutes);
 app.use('/api/favorites', favoriteRoutes);
 app.use('/api/articles', articleRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Health check
 app.get('/api/health', (_, res) => {

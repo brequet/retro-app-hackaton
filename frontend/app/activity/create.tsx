@@ -10,6 +10,7 @@ import {
   Platform,
   KeyboardAvoidingView,
   ActivityIndicator,
+  Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -17,7 +18,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { Colors, FontSize, Spacing, BorderRadius, Shadows } from '../../src/constants/theme';
 import { Button } from '../../src/components/Button';
-import { createActivity, updateActivity, fetchActivity } from '../../src/api/queries';
+import { createActivity, updateActivity, fetchActivity, generateRetroFromTheme } from '../../src/api/queries';
 import { useToastStore } from '../../src/stores/toastStore';
 import { CreateActivityInput } from '../../src/types';
 
@@ -40,9 +41,9 @@ const TEAM_SIZE_OPTIONS = [
 ];
 
 const COMMON_TAGS = [
-  'Fun', 'Amusant', 'Créatif', 'Rapide', 'Réflexion', 'Structure',
-  'Apprentissage', 'Communication', 'Métaphore', 'Équipe', 'Sprint',
-  'Émotions', 'Énergie', 'Interaction', 'Découverte', 'Connexion',
+  'Fun', 'Amusant', 'Creatif', 'Rapide', 'Reflexion', 'Structure',
+  'Apprentissage', 'Communication', 'Metaphore', 'Equipe', 'Sprint',
+  'Emotions', 'Energie', 'Interaction', 'Decouverte', 'Connexion',
 ];
 
 function SectionLabel({ label }: { label: string }) {
@@ -73,6 +74,12 @@ export default function CreateActivityScreen() {
   const [customTag, setCustomTag] = useState('');
   const [loading, setLoading] = useState(false);
   const [initialized, setInitialized] = useState(false);
+
+  // AI generation state
+  const [aiTheme, setAiTheme] = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiGenerated, setAiGenerated] = useState(false);
+  const [showAiSection, setShowAiSection] = useState(false);
 
   // Populate form when editing and data arrives
   React.useEffect(() => {
@@ -132,6 +139,34 @@ export default function CreateActivityScreen() {
   };
   const updateMaterial = (index: number, text: string) => {
     setMaterials((prev) => prev.map((item, i) => (i === index ? text : item)));
+  };
+
+  // AI Generation handler
+  const handleAiGenerate = async () => {
+    if (!aiTheme.trim()) {
+      showToast('Entre un theme pour generer la retrospective', 'error');
+      return;
+    }
+
+    setAiLoading(true);
+    try {
+      const result = await generateRetroFromTheme(aiTheme.trim());
+
+      // Pre-fill the form with AI-generated content
+      setTitle(result.title);
+      setDescription(result.description);
+      setInstructions(result.instructions.length > 0 ? result.instructions : ['']);
+      setMaterials(result.materials.length > 0 ? result.materials : ['']);
+      setSelectedTags(result.tags.length > 0 ? result.tags : []);
+      setAiGenerated(true);
+
+      showToast('Retrospective generee ! Tu peux modifier le contenu avant de sauvegarder.', 'success');
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : 'Erreur lors de la generation';
+      showToast(message, 'error');
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   const validate = (): string | null => {
@@ -267,6 +302,91 @@ export default function CreateActivityScreen() {
               </Text>
             </TouchableOpacity>
           </View>
+
+          {/* AI Generation Section - Only for Retro type and not in edit mode */}
+          {type === 'retro' && !isEdit && (
+            <View style={styles.aiSection}>
+              {!showAiSection ? (
+                <TouchableOpacity
+                  style={styles.aiToggleBtn}
+                  onPress={() => setShowAiSection(true)}
+                  activeOpacity={0.7}
+                >
+                  <View style={styles.aiToggleContent}>
+                    <View style={styles.aiIconBadge}>
+                      <Ionicons name="sparkles" size={18} color={Colors.white} />
+                    </View>
+                    <View style={styles.aiToggleTextWrap}>
+                      <Text style={styles.aiToggleTitle}>Generer avec l'IA</Text>
+                      <Text style={styles.aiToggleSubtitle}>
+                        Cree une retro a partir d'un theme
+                      </Text>
+                    </View>
+                  </View>
+                  <Ionicons name="chevron-forward" size={20} color={Colors.primary} />
+                </TouchableOpacity>
+              ) : (
+                <View style={styles.aiCard}>
+                  <View style={styles.aiCardHeader}>
+                    <View style={styles.aiIconBadge}>
+                      <Ionicons name="sparkles" size={18} color={Colors.white} />
+                    </View>
+                    <Text style={styles.aiCardTitle}>Generer avec l'IA</Text>
+                    <TouchableOpacity
+                      onPress={() => setShowAiSection(false)}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
+                      <Ionicons name="close" size={22} color={Colors.textSecondary} />
+                    </TouchableOpacity>
+                  </View>
+
+                  <Text style={styles.aiCardDescription}>
+                    Entre un theme et l'IA generera un format de retrospective original avec titre, description, instructions et materiel.
+                  </Text>
+
+                  <View style={styles.aiInputRow}>
+                    <TextInput
+                      style={[styles.textInput, styles.aiInput]}
+                      placeholder='Ex: "Communication d\'equipe", "Paques et chocolat"...'
+                      placeholderTextColor={Colors.textTertiary}
+                      value={aiTheme}
+                      onChangeText={setAiTheme}
+                      onSubmitEditing={handleAiGenerate}
+                      returnKeyType="go"
+                      editable={!aiLoading}
+                    />
+                  </View>
+
+                  {aiLoading ? (
+                    <View style={styles.aiLoadingContainer}>
+                      <ActivityIndicator size="small" color={Colors.primary} />
+                      <Text style={styles.aiLoadingText}>
+                        Generation en cours...
+                      </Text>
+                    </View>
+                  ) : (
+                    <View style={styles.aiButtonsRow}>
+                      <TouchableOpacity
+                        style={styles.aiGenerateBtn}
+                        onPress={handleAiGenerate}
+                        activeOpacity={0.7}
+                      >
+                        <Ionicons name="sparkles" size={18} color={Colors.white} />
+                        <Text style={styles.aiGenerateBtnText}>
+                          {aiGenerated ? 'Regenerer' : 'Generer'}
+                        </Text>
+                      </TouchableOpacity>
+                      {aiGenerated && (
+                        <Text style={styles.aiHint}>
+                          Le formulaire a ete pre-rempli. Tu peux le modifier librement.
+                        </Text>
+                      )}
+                    </View>
+                  )}
+                </View>
+              )}
+            </View>
+          )}
 
           {/* Duration */}
           <SectionLabel label="Duree" />
@@ -519,6 +639,120 @@ const styles = StyleSheet.create({
   typeBtnTextActive: {
     color: Colors.white,
   },
+
+  // AI Generation styles
+  aiSection: {
+    marginTop: Spacing.lg,
+  },
+  aiToggleBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    borderWidth: 1.5,
+    borderColor: Colors.primary,
+    borderStyle: 'dashed',
+  },
+  aiToggleContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    flex: 1,
+  },
+  aiIconBadge: {
+    width: 36,
+    height: 36,
+    borderRadius: BorderRadius.md,
+    backgroundColor: Colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  aiToggleTextWrap: {
+    flex: 1,
+  },
+  aiToggleTitle: {
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+    color: Colors.text,
+  },
+  aiToggleSubtitle: {
+    fontSize: FontSize.xs,
+    color: Colors.textSecondary,
+    marginTop: 2,
+  },
+  aiCard: {
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    borderWidth: 1.5,
+    borderColor: Colors.primary,
+    ...Shadows.sm,
+  },
+  aiCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    marginBottom: Spacing.sm,
+  },
+  aiCardTitle: {
+    fontSize: FontSize.md,
+    fontWeight: '700',
+    color: Colors.text,
+    flex: 1,
+  },
+  aiCardDescription: {
+    fontSize: FontSize.sm,
+    color: Colors.textSecondary,
+    lineHeight: 20,
+    marginBottom: Spacing.md,
+  },
+  aiInputRow: {
+    marginBottom: Spacing.md,
+  },
+  aiInput: {
+    marginBottom: 0,
+    borderColor: Colors.primary,
+  },
+  aiLoadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.sm,
+    paddingVertical: Spacing.md,
+  },
+  aiLoadingText: {
+    fontSize: FontSize.sm,
+    color: Colors.primary,
+    fontWeight: '600',
+  },
+  aiButtonsRow: {
+    gap: Spacing.sm,
+  },
+  aiGenerateBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.sm,
+    backgroundColor: Colors.primary,
+    borderRadius: BorderRadius.md,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+  },
+  aiGenerateBtnText: {
+    fontSize: FontSize.sm,
+    fontWeight: '700',
+    color: Colors.white,
+  },
+  aiHint: {
+    fontSize: FontSize.xs,
+    color: Colors.success,
+    textAlign: 'center',
+    fontWeight: '500',
+    marginTop: Spacing.xs,
+  },
+
   chipScroll: {
     marginBottom: Spacing.xs,
   },
