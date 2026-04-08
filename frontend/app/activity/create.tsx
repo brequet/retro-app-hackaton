@@ -194,7 +194,7 @@ export default function CreateActivityScreen() {
             <Ionicons name="arrow-back" size={24} color={Colors.text} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Modifier l'activite</Text>
-          <View style={styles.headerBtn} />
+          <View style={{ width: 44 }} />
         </View>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={Colors.primary} />
@@ -217,7 +217,7 @@ export default function CreateActivityScreen() {
           <Text style={styles.headerTitle}>
             {isEdit ? 'Modifier l\'activite' : 'Nouvelle activite'}
           </Text>
-          <View style={styles.headerBtn} />
+          <View style={{ width: 44 }} />
         </View>
 
         <ScrollView

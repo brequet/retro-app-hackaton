@@ -17,7 +17,7 @@ import { Colors, FontSize, Spacing, BorderRadius, Shadows } from '../../src/cons
 import { ActivityCard } from '../../src/components/ActivityCard';
 import { ActivityCardSkeleton } from '../../src/components/Skeleton';
 import { Button } from '../../src/components/Button';
-import { fetchActivities, fetchRecentlyViewed, fetchFavorites, fetchArticles } from '../../src/api/queries';
+import { fetchActivities, fetchRecentlyViewed, fetchArticles } from '../../src/api/queries';
 import { useAuthStore } from '../../src/stores/authStore';
 import { Activity, Article } from '../../src/types';
 
@@ -86,14 +86,6 @@ export default function HomeScreen() {
   });
 
   const {
-    data: favorites,
-    refetch: refetchFavorites,
-  } = useQuery({
-    queryKey: ['favorites'],
-    queryFn: fetchFavorites,
-  });
-
-  const {
     data: articles,
     refetch: refetchArticles,
   } = useQuery({
@@ -105,13 +97,12 @@ export default function HomeScreen() {
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await Promise.all([refetchActivities(), refetchRecent(), refetchFavorites(), refetchArticles()]);
+    await Promise.all([refetchActivities(), refetchRecent(), refetchArticles()]);
     setRefreshing(false);
-  }, [refetchActivities, refetchRecent, refetchFavorites, refetchArticles]);
+  }, [refetchActivities, refetchRecent, refetchArticles]);
 
   const recentActivities = activities?.slice(0, 6) || [];
   const viewedActivities = recentlyViewed?.slice(0, 6) || [];
-  const favoriteActivities = favorites?.slice(0, 6) || [];
   const recentArticles = articles?.slice(0, 3) || [];
 
   const handleLogout = async () => {
@@ -188,14 +179,6 @@ export default function HomeScreen() {
           <>
             <SectionHeader icon="eye-outline" title="Consultes recemment" />
             <HorizontalActivityList activities={viewedActivities} isLoading={loadingActivities} />
-          </>
-        )}
-
-        {/* Favorites */}
-        {favoriteActivities.length > 0 && (
-          <>
-            <SectionHeader icon="heart-outline" title="Mes favoris" />
-            <HorizontalActivityList activities={favoriteActivities} />
           </>
         )}
 
