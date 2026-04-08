@@ -30,10 +30,13 @@ IMPORTANT: Tu dois repondre UNIQUEMENT avec un objet JSON valide, sans aucun tex
     "Marqueurs",
     "..."
   ],
-  "tags": ["tag1", "tag2", "tag3", "tag4"]
+  "tags": ["tag1", "tag2", "tag3", "tag4"],
+  "estimatedDuration": 30
 }
 
 Regles pour les tags: choisis 3-5 tags pertinents parmi cette liste ou inventes-en de nouveaux si necessaire: Fun, Amusant, Creatif, Rapide, Reflexion, Structure, Apprentissage, Communication, Metaphore, Equipe, Sprint, Emotions, Energie, Interaction, Decouverte, Connexion.
+
+Regles pour estimatedDuration: calcule la duree totale estimee en minutes en additionnant tous les timings des instructions. Retourne un nombre entier entre 10 et 60.
 
 Les instructions doivent etre pratiques et inclurent les timings suggeres. La retrospective doit etre adaptee a un format de 20-45 minutes.
 
@@ -96,6 +99,7 @@ router.post('/generate-retro', authMiddleware, async (req: AuthRequest, res: Res
       instructions: parsed.instructions,
       materials: parsed.materials || [],
       tags: parsed.tags || [],
+      estimatedDuration: parsed.estimatedDuration || 25, // fallback to 25 min
     });
   } catch (error: any) {
     console.error('AI generation error:', error);

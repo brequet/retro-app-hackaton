@@ -196,6 +196,17 @@ export default function CreateActivityScreen() {
       );
       setMaterials(result.materials.length > 0 ? result.materials : [""]);
       setSelectedTags(result.tags.length > 0 ? result.tags : []);
+      
+      // Set duration based on AI estimation
+      if (result.estimatedDuration) {
+        const minutes = result.estimatedDuration;
+        // Find the best matching duration option
+        const bestMatch = DURATION_OPTIONS.find(
+          (opt) => minutes >= opt.min && minutes <= opt.max
+        ) || DURATION_OPTIONS.find((opt) => minutes <= opt.max) || DURATION_OPTIONS[DURATION_OPTIONS.length - 1];
+        setDuration(bestMatch);
+      }
+      
       setAiGenerated(true);
 
       showToast(

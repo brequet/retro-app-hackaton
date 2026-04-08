@@ -130,6 +130,7 @@ export interface GeneratedRetro {
   instructions: string[];
   materials: string[];
   tags: string[];
+  estimatedDuration?: number; // in minutes
 }
 
 export async function generateRetroFromTheme(theme: string): Promise<GeneratedRetro> {
