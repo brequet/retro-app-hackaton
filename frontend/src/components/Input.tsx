@@ -44,13 +44,13 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: FontSize.sm,
-    fontWeight: '500',
+    fontWeight: '600',
     color: Colors.text,
-    marginBottom: Spacing.xs,
+    marginBottom: Spacing.xs + 2,
   },
   input: {
     width: '100%',
-    height: 48,
+    height: 50,
     borderWidth: 1.5,
     borderColor: Colors.border,
     borderRadius: BorderRadius.md,
@@ -61,6 +61,7 @@ const styles = StyleSheet.create({
   },
   inputFocused: {
     borderColor: Colors.primary,
+    backgroundColor: Colors.primaryLight,
   },
   inputError: {
     borderColor: Colors.error,

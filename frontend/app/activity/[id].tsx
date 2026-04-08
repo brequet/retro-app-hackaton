@@ -147,7 +147,7 @@ export default function ActivityDetailScreen() {
   }
 
   const typeColor = activity.type === 'retro' ? Colors.retro : Colors.icebreaker;
-  const typeBg = activity.type === 'retro' ? Colors.primaryLight : '#e6f7f3';
+  const typeBg = activity.type === 'retro' ? Colors.primaryLight : Colors.accentLight;
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -175,7 +175,7 @@ export default function ActivityDetailScreen() {
                 style={styles.headerBtn}
                 disabled={isDeleting}
               >
-                <Ionicons name="trash" size={20} color="#e74c3c" />
+                <Ionicons name="trash" size={20} color={Colors.error} />
               </TouchableOpacity>
             </>
           )}
@@ -184,7 +184,7 @@ export default function ActivityDetailScreen() {
               <Ionicons
                 name={isFavorite ? 'heart' : 'heart-outline'}
                 size={24}
-                color={isFavorite ? '#e74c3c' : Colors.text}
+                color={isFavorite ? Colors.error : Colors.text}
               />
             </Animated.View>
           </TouchableOpacity>
@@ -199,7 +199,7 @@ export default function ActivityDetailScreen() {
         {/* Soft-deleted banner */}
         {isDeleted && (
           <View style={styles.deletedBanner}>
-            <Ionicons name="alert-circle" size={18} color="#b45309" />
+            <Ionicons name="alert-circle" size={18} color={Colors.accentDark} />
             <Text style={styles.deletedBannerText}>
               Cette activite a ete supprimee par son createur
             </Text>
@@ -429,9 +429,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.sm,
-    backgroundColor: '#fef3c7',
+    backgroundColor: Colors.accentLight,
     borderWidth: 1,
-    borderColor: '#f59e0b',
+    borderColor: Colors.accent,
     borderRadius: BorderRadius.md,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
@@ -441,6 +441,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: FontSize.sm,
     fontWeight: '600',
-    color: '#b45309',
+    color: Colors.accentDark,
   },
 });

@@ -1,24 +1,42 @@
 export const Colors = {
-  primary: '#074ee8',
-  primaryHover: '#0640c7',
-  primaryLight: '#e8f0fe',
-  background: '#f5f5f5',
+  // Primary: teal/turquoise (from Figma)
+  primary: '#0891b2',
+  primaryHover: '#0e7490',
+  primaryLight: '#e0f7fa',
+  primaryDark: '#065a73',
+
+  // Accent: warm yellow
+  accent: '#f59e0b',
+  accentLight: '#fef3c7',
+  accentDark: '#d97706',
+
+  // Backgrounds
+  background: '#faf7f2',
   surface: '#ffffff',
-  surfaceHover: '#f8f9fa',
-  text: '#111111',
-  textSecondary: '#666666',
-  textTertiary: '#999999',
-  border: '#e0e0e0',
-  borderLight: '#f0f0f0',
-  inactive: '#aaaaaa',
-  error: '#dc3545',
-  success: '#28a745',
+  surfaceHover: '#f8f6f1',
+
+  // Text
+  text: '#1e293b',
+  textSecondary: '#64748b',
+  textTertiary: '#94a3b8',
+
+  // Borders
+  border: '#e2e8f0',
+  borderLight: '#f1ede6',
+
+  // Status
+  inactive: '#94a3b8',
+  error: '#ef4444',
+  success: '#22c55e',
+
+  // Neutrals
   white: '#ffffff',
   black: '#000000',
-  overlay: 'rgba(0,0,0,0.5)',
+  overlay: 'rgba(0,0,0,0.4)',
+
   // Activity type colors
-  retro: '#074ee8',
-  icebreaker: '#00b894',
+  retro: '#0891b2',
+  icebreaker: '#f59e0b',
 };
 
 export const Spacing = {
@@ -32,10 +50,10 @@ export const Spacing = {
 };
 
 export const BorderRadius = {
-  sm: 6,
-  md: 10,
-  lg: 14,
-  xl: 20,
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 24,
   full: 999,
 };
 
@@ -51,24 +69,24 @@ export const FontSize = {
 
 export const Shadows = {
   sm: {
-    shadowColor: '#000',
+    shadowColor: '#1e293b',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
     elevation: 2,
   },
   md: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
+    shadowColor: '#1e293b',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.07,
+    shadowRadius: 10,
     elevation: 4,
   },
   lg: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 16,
+    shadowColor: '#1e293b',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
     elevation: 8,
   },
 };

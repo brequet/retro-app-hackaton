@@ -5,8 +5,8 @@ import { Colors, FontSize, Spacing, BorderRadius, Shadows } from '../constants/t
 import { useToastStore, ToastType } from '../stores/toastStore';
 
 const iconMap: Record<ToastType, { name: string; color: string; bg: string }> = {
-  success: { name: 'checkmark-circle', color: '#28a745', bg: '#e6f9ee' },
-  error: { name: 'alert-circle', color: '#dc3545', bg: '#fde8ea' },
+  success: { name: 'checkmark-circle', color: Colors.success, bg: '#ecfdf5' },
+  error: { name: 'alert-circle', color: Colors.error, bg: '#fef2f2' },
   info: { name: 'information-circle', color: Colors.primary, bg: Colors.primaryLight },
 };
 

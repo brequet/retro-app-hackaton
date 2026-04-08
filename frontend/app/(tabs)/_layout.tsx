@@ -68,18 +68,18 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   tabBar: {
     backgroundColor: Colors.white,
-    borderTopWidth: 1,
-    borderTopColor: Colors.borderLight,
+    borderTopWidth: 0,
+    borderTopColor: 'transparent',
     height: Platform.select({ ios: 88, android: 64, web: 68, default: 64 }),
     paddingTop: 8,
-    elevation: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
+    elevation: 10,
+    shadowColor: '#1e293b',
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
   },
   tabLabel: {
     fontSize: 11,
-    fontWeight: "600",
+    fontWeight: '700',
   },
 });

@@ -12,7 +12,7 @@ import { Colors, BorderRadius, FontSize, Spacing } from '../constants/theme';
 interface ButtonProps {
   title: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'accent';
   size?: 'sm' | 'md' | 'lg';
   disabled?: boolean;
   loading?: boolean;
@@ -49,6 +49,10 @@ export function Button({
     textStyle as TextStyle,
   ].filter(Boolean) as TextStyle[];
 
+  const spinnerColor = variant === 'primary' || variant === 'accent'
+    ? Colors.white
+    : Colors.primary;
+
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -57,10 +61,7 @@ export function Button({
       activeOpacity={0.7}
     >
       {loading ? (
-        <ActivityIndicator
-          color={variant === 'primary' ? Colors.white : Colors.primary}
-          size="small"
-        />
+        <ActivityIndicator color={spinnerColor} size="small" />
       ) : (
         <Text style={textStyles}>{title}</Text>
       )}
@@ -73,7 +74,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.lg,
   },
   fullWidth: {
     width: '100%',
@@ -97,27 +98,30 @@ const styles = StyleSheet.create({
   variant_ghost: {
     backgroundColor: 'transparent',
   },
+  variant_accent: {
+    backgroundColor: Colors.accent,
+  },
 
   // Sizes
   size_sm: {
-    paddingHorizontal: Spacing.md,
+    paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.sm,
     minHeight: 36,
   },
   size_md: {
-    paddingHorizontal: Spacing.lg,
+    paddingHorizontal: Spacing.xl,
     paddingVertical: Spacing.md,
-    minHeight: 44,
+    minHeight: 46,
   },
   size_lg: {
-    paddingHorizontal: Spacing.xl,
+    paddingHorizontal: Spacing.xxl,
     paddingVertical: Spacing.lg,
-    minHeight: 52,
+    minHeight: 54,
   },
 
   // Text
   text: {
-    fontWeight: '600',
+    fontWeight: '700',
     textAlign: 'center',
   },
   text_primary: {
@@ -131,6 +135,9 @@ const styles = StyleSheet.create({
   },
   text_ghost: {
     color: Colors.primary,
+  },
+  text_accent: {
+    color: Colors.white,
   },
   textDisabled: {
     opacity: 0.7,

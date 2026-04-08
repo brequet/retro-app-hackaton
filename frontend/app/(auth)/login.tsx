@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, FontSize, Spacing, BorderRadius } from '../../src/constants/theme';
+import { Colors, FontSize, Spacing, BorderRadius, Shadows } from '../../src/constants/theme';
 import { Button } from '../../src/components/Button';
 import { Input } from '../../src/components/Input';
 import { useAuthStore } from '../../src/stores/authStore';
@@ -143,9 +143,9 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xxxl,
   },
   logoContainer: {
-    width: 88,
-    height: 88,
-    borderRadius: BorderRadius.xl,
+    width: 96,
+    height: 96,
+    borderRadius: BorderRadius.full,
     backgroundColor: Colors.primaryLight,
     justifyContent: 'center',
     alignItems: 'center',
@@ -165,13 +165,9 @@ const styles = StyleSheet.create({
   },
   form: {
     backgroundColor: Colors.white,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.xl,
     padding: Spacing.xxl,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 3,
+    ...Shadows.md,
   },
   formTitle: {
     fontSize: FontSize.xl,

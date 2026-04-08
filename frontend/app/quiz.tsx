@@ -144,7 +144,7 @@ function StepResult({ activity, onRestart }: { activity: Activity | null; onRest
     <View style={styles.stepContent}>
       <Text style={styles.resultLabel}>Nous te recommandons :</Text>
       <View style={styles.resultCard}>
-        <View style={[styles.resultBadge, { backgroundColor: activity.type === 'retro' ? Colors.primaryLight : '#e6f7f3' }]}>
+        <View style={[styles.resultBadge, { backgroundColor: activity.type === 'retro' ? Colors.primaryLight : Colors.accentLight }]}>
           <Text style={{ color: activity.type === 'retro' ? Colors.retro : Colors.icebreaker, fontSize: FontSize.xs, fontWeight: '600' }}>
             {activity.type === 'retro' ? 'Retrospective' : 'Icebreaker'}
           </Text>

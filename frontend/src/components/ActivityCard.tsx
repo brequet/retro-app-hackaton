@@ -17,6 +17,10 @@ export function ActivityCard({ activity, variant = 'compact' }: ActivityCardProp
   const isFavorite = useFavoritesStore((s) => s.favoriteIds.has(activity.id));
   const heartScale = useRef(new Animated.Value(1)).current;
 
+  const isRetro = activity.type === 'retro';
+  const typeColor = isRetro ? Colors.retro : Colors.icebreaker;
+  const typeBg = isRetro ? Colors.primaryLight : Colors.accentLight;
+
   const handleToggleFavorite = async () => {
     Animated.sequence([
       Animated.timing(heartScale, {
@@ -54,29 +58,14 @@ export function ActivityCard({ activity, variant = 'compact' }: ActivityCardProp
     return (
       <TouchableOpacity style={listStyles.card} onPress={handlePress} activeOpacity={0.7}>
         {/* Colored left accent */}
-        <View
-          style={[
-            listStyles.accent,
-            { backgroundColor: activity.type === 'retro' ? Colors.retro : Colors.icebreaker },
-          ]}
-        />
+        <View style={[listStyles.accent, { backgroundColor: typeColor }]} />
 
         <View style={listStyles.body}>
           <View style={listStyles.topRow}>
             {/* Badge */}
-            <View
-              style={[
-                listStyles.badge,
-                { backgroundColor: activity.type === 'retro' ? Colors.primaryLight : '#e6f7f3' },
-              ]}
-            >
-              <Text
-                style={[
-                  listStyles.badgeText,
-                  { color: activity.type === 'retro' ? Colors.retro : Colors.icebreaker },
-                ]}
-              >
-                {activity.type === 'retro' ? 'Retro' : 'Icebreaker'}
+            <View style={[listStyles.badge, { backgroundColor: typeBg }]}>
+              <Text style={[listStyles.badgeText, { color: typeColor }]}>
+                {isRetro ? 'Retro' : 'Icebreaker'}
               </Text>
             </View>
 
@@ -89,7 +78,7 @@ export function ActivityCard({ activity, variant = 'compact' }: ActivityCardProp
                 <Ionicons
                   name={isFavorite ? 'heart' : 'heart-outline'}
                   size={20}
-                  color={isFavorite ? '#e74c3c' : Colors.inactive}
+                  color={isFavorite ? Colors.error : Colors.inactive}
                 />
               </Animated.View>
             </TouchableOpacity>
@@ -138,23 +127,13 @@ export function ActivityCard({ activity, variant = 'compact' }: ActivityCardProp
       activeOpacity={0.7}
     >
       {/* Colored top bar */}
-      <View
-        style={[
-          styles.topBar,
-          { backgroundColor: activity.type === 'retro' ? Colors.retro : Colors.icebreaker },
-        ]}
-      />
+      <View style={[styles.topBar, { backgroundColor: typeColor }]} />
 
       <View style={styles.content}>
         {/* Type badge */}
-        <View style={[styles.badge, { backgroundColor: activity.type === 'retro' ? Colors.primaryLight : '#e6f7f3' }]}>
-          <Text
-            style={[
-              styles.badgeText,
-              { color: activity.type === 'retro' ? Colors.retro : Colors.icebreaker },
-            ]}
-          >
-            {activity.type === 'retro' ? 'Retro' : 'Icebreaker'}
+        <View style={[styles.badge, { backgroundColor: typeBg }]}>
+          <Text style={[styles.badgeText, { color: typeColor }]}>
+            {isRetro ? 'Retro' : 'Icebreaker'}
           </Text>
         </View>
 
@@ -186,8 +165,8 @@ export function ActivityCard({ activity, variant = 'compact' }: ActivityCardProp
         {!isCompact && (
           <View style={styles.tagsRow}>
             {activity.tags.slice(0, 3).map((tag) => (
-              <View key={tag} style={styles.tag}>
-                <Text style={styles.tagText}>{tag}</Text>
+              <View key={tag} style={[styles.tag, { borderColor: typeColor }]}>
+                <Text style={[styles.tagText, { color: typeColor }]}>{tag}</Text>
               </View>
             ))}
           </View>
@@ -204,7 +183,7 @@ export function ActivityCard({ activity, variant = 'compact' }: ActivityCardProp
           <Ionicons
             name={isFavorite ? 'heart' : 'heart-outline'}
             size={20}
-            color={isFavorite ? '#e74c3c' : Colors.inactive}
+            color={isFavorite ? '#ef4444' : Colors.inactive}
           />
         </Animated.View>
       </TouchableOpacity>
@@ -237,12 +216,12 @@ const listStyles = StyleSheet.create({
   },
   badge: {
     paddingHorizontal: Spacing.sm,
-    paddingVertical: 2,
+    paddingVertical: 3,
     borderRadius: BorderRadius.sm,
   },
   badgeText: {
     fontSize: FontSize.xs,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   title: {
     fontSize: FontSize.md,
@@ -280,8 +259,6 @@ const listStyles = StyleSheet.create({
     paddingHorizontal: Spacing.sm,
     paddingVertical: 2,
     borderRadius: BorderRadius.full,
-    borderWidth: 1,
-    borderColor: Colors.border,
     backgroundColor: Colors.background,
   },
   tagText: {
@@ -304,7 +281,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   topBar: {
-    height: 4,
+    height: 5,
     width: '100%',
   },
   content: {
@@ -312,14 +289,14 @@ const styles = StyleSheet.create({
   },
   badge: {
     paddingHorizontal: Spacing.sm,
-    paddingVertical: 2,
+    paddingVertical: 3,
     borderRadius: BorderRadius.sm,
     alignSelf: 'flex-start',
     marginBottom: Spacing.sm,
   },
   badgeText: {
     fontSize: FontSize.xs,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   title: {
     fontSize: FontSize.md,
@@ -359,11 +336,9 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
-    borderColor: Colors.primary,
   },
   tagText: {
     fontSize: 11,
-    color: Colors.primary,
     fontWeight: '500',
   },
   favoriteBtn: {

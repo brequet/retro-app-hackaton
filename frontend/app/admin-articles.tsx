@@ -203,7 +203,7 @@ export default function AdminArticlesScreen() {
                         <Ionicons name="pencil" size={18} color={Colors.primary} />
                       </TouchableOpacity>
                       <TouchableOpacity onPress={() => handleDeleteArticle(article.id)}>
-                        <Ionicons name="trash" size={18} color="#e74c3c" />
+                        <Ionicons name="trash" size={18} color={Colors.error} />
                       </TouchableOpacity>
                     </View>
                   </View>
