@@ -36,6 +36,8 @@ export default function ArticlesListScreen() {
   } = useQuery({
     queryKey: ['articles'],
     queryFn: fetchArticles,
+    refetchInterval: 60000,
+    staleTime: 10000,
   });
 
   const [refreshing, setRefreshing] = React.useState(false);

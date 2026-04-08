@@ -91,6 +91,8 @@ export default function HomeScreen() {
   } = useQuery({
     queryKey: ['articles'],
     queryFn: fetchArticles,
+    refetchInterval: 60000, // Poll every 60s for multi-instance freshness
+    staleTime: 10000,
   });
 
   const [refreshing, setRefreshing] = React.useState(false);
