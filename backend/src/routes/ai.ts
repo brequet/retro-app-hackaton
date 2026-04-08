@@ -1,12 +1,9 @@
 import { Router, Response } from 'express';
-import Groq from 'groq-sdk';
+import { groq } from '@ai-sdk/groq';
+import { generateText } from 'ai';
 import { AuthRequest, authMiddleware } from '../middleware/auth';
 
 const router: Router = Router();
-
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-});
 
 const SYSTEM_PROMPT = `Tu es un expert en methodologies agile et en facilitation d'equipes. Tu crees des formats de retrospectives originaux et engageants pour des equipes de developpement.
 
@@ -62,23 +59,13 @@ router.post('/generate-retro', authMiddleware, async (req: AuthRequest, res: Res
       return;
     }
 
-    const chatCompletion = await groq.chat.completions.create({
-      messages: [
-        {
-          role: 'system',
-          content: SYSTEM_PROMPT,
-        },
-        {
-          role: 'user',
-          content: `Genere une retrospective sur le theme: "${theme.trim()}"`,
-        },
-      ],
-      model: 'llama-3.3-70b-versatile',
+    const { text: content } = await generateText({
+      model: groq('llama-3.3-70b-versatile'),
+      system: SYSTEM_PROMPT,
+      prompt: `Genere une retrospective sur le theme: "${theme.trim()}"`,
       temperature: 0.8,
-      max_completion_tokens: 1024,
+      maxTokens: 1024,
     });
-
-    const content = chatCompletion.choices[0]?.message?.content;
 
     if (!content) {
       res.status(500).json({ error: 'Aucune reponse generee par l\'IA' });
